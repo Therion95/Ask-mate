@@ -22,6 +22,6 @@ def csv_creating(csv_file, dict_to_add=None):
 
 
 def csv_appending(csv_file, dict_to_add, field_names):
-    with open(, 'w', newline='') as file:
+    with open(csv_file, 'w', newline='') as file:
         dict_appender = csv.DictWriter(file, fieldnames=field_names)
         dict_appender.writerow(dict_to_add)
