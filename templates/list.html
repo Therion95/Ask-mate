@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Questions List</title>
+</head>
+<style>
+    body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #444444;
+    font-size: 11pt;
+    background-color: #FAFAFA;
+}
+    th, td {
+        border-bottom: 1px solid #ddd;
+        padding: 15px;
+        text-align: left;
+}
+    th {background-color: #04AA6D;
+  color: white;
+        font-size: 17px;
+        font-weight: bold;
+    }
+    tr:hover {background-color: yellow;}
+    tr:nth-child(odd) {background-color: #f2f2f2;}
+</style>
+<body>
+<p><h1>Ask-Mate: now you know.</h1></p>
+<p><h2>Questions' list:</h2></p>
+<hr><br>
+<table>
+  <tr>
+      {% for header in headers %}
+      <th>{{ header }}</th>
+      {% endfor %}
+  </tr>
+    <tr>
+    {% for dict in data  %}
+        {% for value in dict %}
+        <td>{{ dict[value] }}</td>
+    {% endfor %}
+        </tr>
+    {% endfor %}
+
+</table>
+</body>
+</html>
