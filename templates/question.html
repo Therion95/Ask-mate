@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <title>Ask-Mate: Question {{ question['id'] }}</title>
+
+{% endblock %}
+
+
+{% block body %}
+    <p><h3>Question {{ question['id'] }} - <i>the {{ headers[4] }}:</i></h3>
+    <h2>{{ question[headers[4]] }}</h2>
+    <br><p><h3><i>{{ headers[5] }}:</i></h3>
+    <p><h2>{{ question[headers[5]] }}</h2>
+
+
+
+
+
+
+
+{% endblock %}
