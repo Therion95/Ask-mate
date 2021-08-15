@@ -1,8 +1,12 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 
 import data_manager
 
 app = Flask(__name__)
+
+# GLOBAL directories to our CSV files:
+QUESTIONS = 'data/questions.csv'
+ANSWERS = 'data/answers.csv'
 
 
 @app.route("/")
@@ -12,14 +16,19 @@ def index():
 
 @app.route('/list', methods=['get'])
 def list_questions():
-    data, headers = data_manager.list_questions('data/questions.csv')
+    global QUESTIONS
+    data, headers = data_manager.list_questions(QUESTIONS)
     return render_template('list.html', data=data, headers=headers)
 
 
-@app.route('/question/<int:question_id>')
+@app.route('/question/<int:question_id>', methods=['get'])
 def question_display(question_id):
-    pass
+    global QUESTIONS
+    question_to_display, headers = data_manager.question_display(question_id, QUESTIONS)
+    return render_template('question.html', question=question_to_display, headers=headers)
 
+
+# TODO: get_or_404()
 
 if __name__ == "__main__":
     app.run()
