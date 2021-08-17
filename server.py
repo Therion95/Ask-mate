@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 
+import data_manager, connection
 
-import data_manager
+
 
 app = Flask(__name__)
 
@@ -41,6 +42,21 @@ def answer_question():
     data = dict(request.form)
     print(data)
     return redirect(url_for('index'))
+
+
+@app.route('/add_question', methods=['GET'])
+def display_add_question():
+    return render_template('Ask_a_question.html')
+
+
+@app.route('/add_question', methods=['POST'])
+def add_question():
+    data = dict(request.form)
+    data["id"] = data_manager.get_next_id()
+    data["view_number"] = 0
+    data["vote_number"] = 0
+    connection.csv_appending('data/questions.csv', data)
+    return redirect(url_for("question_display"))
 
 
 if __name__ == "__main__":
