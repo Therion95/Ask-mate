@@ -11,8 +11,10 @@ def list_questions(csv_file):
     return list_of_data, headers
 
 
-def question_display(question_id, csv_file):
-    questions, headers = list_questions(csv_file)
+def question_display(question_id, questions_csv_file, answers_csv_file):
+    questions, headers = list_questions(questions_csv_file)
+    answers = [answer for answer in connection.csv_opening(answers_csv_file)
+               if int(answer['question_id']) == question_id]
     for question in questions:
         if int(question['id']) == question_id:
-            return question, headers
+            return question, headers, answers
