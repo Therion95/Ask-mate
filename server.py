@@ -40,7 +40,10 @@ def display_answer_question():
 @app.route('/answer', methods=['POST'])
 def answer_question():
     data = dict(request.form)
-    print(data)
+    data["id"] = data_manager.get_next_id(ANSWERS)
+    data["view_number"] = 0
+    data["vote_number"] = 0
+    connection.csv_appending(ANSWERS, data)
     return redirect(url_for('index'))
 
 
@@ -52,7 +55,7 @@ def display_add_question():
 @app.route('/add_question', methods=['POST'])
 def add_question():
     data = dict(request.form)
-    data["id"] = data_manager.get_next_id()
+    data["id"] = data_manager.get_next_id(QUESTIONS)
     data["view_number"] = 0
     data["vote_number"] = 0
     connection.csv_appending('data/questions.csv', data)
