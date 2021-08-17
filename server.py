@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 
 import data_manager
 
@@ -24,8 +24,8 @@ def list_questions():
 @app.route('/question/<int:question_id>', methods=['get'])
 def question_display(question_id):
     global QUESTIONS
-    question_to_display, headers = data_manager.question_display(question_id, QUESTIONS)
-    return render_template('question.html', question=question_to_display, headers=headers)
+    question_to_display, headers, answers = data_manager.question_display(question_id, QUESTIONS, ANSWERS)
+    return render_template('question.html', question=question_to_display, headers=headers, answers=answers)
 
 
 # TODO: get_or_404()
