@@ -53,7 +53,7 @@ def answer_question(question_id):
     data["id"] = data_manager.get_next_id(ANSWERS)
     data["submission_time"] = 0
     data["vote_number"] = 0
-    data["question_id"] = 0
+    data["question_id"] = qid
     data['image'] = path
     print(data)
     connection.csv_appending(ANSWERS, data)
