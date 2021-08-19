@@ -34,13 +34,15 @@ def question_display(question_id):
 
 # TODO: get_or_404()
 
-@app.route('/answer', methods=['GET'])
-def display_answer_question():
-    return render_template('answer_question.html')
+@app.route('/question/<question_id>/new_answer', methods=['GET'])
+def display_answer_question(question_id):
+    qid = int(question_id)
+    return render_template('answer_question.html', q_id=qid)
 
 
-@app.route('/answer', methods=['POST'])
-def answer_question():
+@app.route('/question/<question_id>', methods=['POST'])
+def answer_question(question_id):
+    qid = int(question_id)
     if 'image' not in request.files:
         return "There is no file in form"
     image = request.files['image']
@@ -56,7 +58,7 @@ def answer_question():
     print(data)
     connection.csv_appending(ANSWERS, data)
 
-    return redirect(url_for('index'))
+    return redirect(url_for('question_display', question_id=qid))
 
 
 @app.route('/add_question', methods=['GET'])
