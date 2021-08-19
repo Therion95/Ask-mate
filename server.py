@@ -54,7 +54,8 @@ def answer_question(question_id):
     data["submission_time"] = 0
     data["vote_number"] = 0
     data["question_id"] = qid
-    data['image'] = path
+    picture = "/" + path.replace("\\", "/")
+    data['image'] = picture
     print(data)
     connection.csv_appending(ANSWERS, data)
 

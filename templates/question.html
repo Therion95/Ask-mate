@@ -18,6 +18,8 @@
 
     {% for answer in answers %}
        <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['message'] }}
+           <br>
+           <img src="{{ answer['image'] }}" alt="Picture" style="width: 10%;" /><br><br>
            <p><h5>Actions:</h5>
            <hr>
            <table><tr class="answer">
