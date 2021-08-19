@@ -34,32 +34,31 @@ def question_display(question_id):
 
 # TODO: get_or_404()
 
-@app.route('/question/<question_id>/new_answer', methods=['GET'])
-def display_answer_question(question_id):
-    qid = int(question_id)
-    return render_template('answer_question.html', q_id=qid)
 
-
-@app.route('/question/<question_id>', methods=['POST'])
+@app.route('/question/<question_id>/new_answer', methods=['GET', 'POST'])
 def answer_question(question_id):
     qid = int(question_id)
-    if 'image' not in request.files:
-        return "There is no file in form"
-    image = request.files['image']
-    path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
-    image.save(path)
 
-    data = dict(request.form)
-    data["id"] = data_manager.get_next_id(ANSWERS)
-    data["submission_time"] = 0
-    data["vote_number"] = 0
-    data["question_id"] = qid
-    picture = "/" + path.replace("\\", "/")
-    data['image'] = picture
-    print(data)
-    connection.csv_appending(ANSWERS, data)
+    if request.method == 'GET':
+        return render_template('answer_question.html', question_id=qid)
 
-    return redirect(url_for('question_display', question_id=qid))
+    elif request.method == 'POST':
+        data = dict(request.form)
+        data["id"] = data_manager.get_next_id(ANSWERS)
+        data["submission_time"] = 0
+        data["vote_number"] = 0
+        data["question_id"] = qid
+
+        image = request.files['image']
+
+        if image.filename != '':
+            path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+            image.save(path)
+            data['image'] = "/" + path.replace("\\", "/")
+
+        connection.csv_appending(ANSWERS, data)
+
+        return redirect(url_for('question_display', question_id=qid))
 
 
 @app.route('/add_question', methods=['GET'])

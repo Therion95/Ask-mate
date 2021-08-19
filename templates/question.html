@@ -13,13 +13,15 @@
     <br><p><h3><i>{{ headers[5] }}:</i></h3>
     <p><h2>{{ question[headers[5]] }}</h2>
     <hr><br>
-    <h3><a href="{{ url_for("display_answer_question", question_id=question["id"]) }}">Add new answer</a></h3><br><br>
+    <h3><a href="{{ url_for("answer_question", question_id=question["id"]) }}">Add new answer</a></h3><br><br>
     <p><h3><i>Answers to question {{ question['id'] }}:</i></h3></p>
 
     {% for answer in answers %}
        <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['message'] }}
            <br>
-           <img src="{{ answer['image'] }}" alt="Picture" style="width: 10%;" /><br><br>
+           {% if answer['image'] != "" %}
+               <img src="{{ answer['image'] }}" alt="Picture" style="width: 30%;" /><br><br>
+           {% endif %}
            <p><h5>Actions:</h5>
            <hr>
            <table><tr class="answer">
