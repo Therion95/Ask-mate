@@ -41,17 +41,21 @@ def display_answer_question():
 
 @app.route('/answer', methods=['POST'])
 def answer_question():
-    data = dict(request.form)
-    data["id"] = data_manager.get_next_id(ANSWERS)
-    data["view_number"] = 0
-    data["vote_number"] = 0
     if 'image' not in request.files:
         return "There is no file in form"
     image = request.files['image']
     path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
     image.save(path)
 
-    #connection.csv_appending(ANSWERS, data)
+    data = dict(request.form)
+    data["id"] = data_manager.get_next_id(ANSWERS)
+    data["submission_time"] = 0
+    data["vote_number"] = 0
+    data["question_id"] = 0
+    data['image'] = path
+    print(data)
+    connection.csv_appending(ANSWERS, data)
+
     return redirect(url_for('index'))
 
 
