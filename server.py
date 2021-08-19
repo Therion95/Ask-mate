@@ -1,10 +1,12 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 
 import data_manager, connection
 
-
+UPLOAD_FOLDER = 'static/answer_images'
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # GLOBAL directories to our CSV files:
 QUESTIONS = 'data/questions.csv'
@@ -43,7 +45,13 @@ def answer_question():
     data["id"] = data_manager.get_next_id(ANSWERS)
     data["view_number"] = 0
     data["vote_number"] = 0
-    connection.csv_appending(ANSWERS, data)
+    if 'image' not in request.files:
+        return "There is no file in form"
+    image = request.files['image']
+    path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+    image.save(path)
+
+    #connection.csv_appending(ANSWERS, data)
     return redirect(url_for('index'))
 
 

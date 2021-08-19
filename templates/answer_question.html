@@ -13,10 +13,14 @@
 </style>
 <body>
     <h1>Answer a question</h1><br>
-    <form action="{{ url_for("answer_question") }}" method="post">
+    <form action="{{ url_for("answer_question") }}" method="post" enctype="multipart/form-data">
         <label for="answer">Add an answer:</label><br>
-        <textarea name="answer" id="answer" minlength="5" maxlength="1000" rows="4" cols="60"></textarea><br>
-        <input type="submit" value="Answer">
+        <textarea name="answer" id="answer" minlength="5" maxlength="1000" rows="4" cols="60"></textarea>
+        <br><br>
+        <label for="image">Upload an image:</label><br>
+        <input  type="file" name="image" id="image" value="Choose">
+        <br><br>
+        <input type="submit" value="Answer" >
     </form>
 </body>
 </html>
