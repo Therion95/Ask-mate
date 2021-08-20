@@ -19,6 +19,12 @@
         {% for key, value in dict.items() %}
             {% if key == 'id' %}
                 <td><a href={{ url_for('question_display', question_id=value) }}>{{ value }}</a></td>
+            {% elif key == 'image' %}
+                {% if dict[key] != '' %}
+                    <td><img src="{{ dict[key] }}" alt="Picture" style="width: 30%;" /></td>
+                {% elif dict[key] == '' %}
+                    <td>No image</td>
+                {% endif %}
             {% else %}
                 <td>{{ value }}</td>
             {% endif %}

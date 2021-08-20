@@ -28,7 +28,6 @@ def question_display(question_id, questions_csv_file, answers_csv_file):
 
 def get_next_id():
     data, headers = list_questions('data/questions.csv')
-    # return int(max([head["id"] for head in data])) + 1
     return len(data) + 1
 
 

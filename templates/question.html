@@ -14,7 +14,10 @@
     <br><p><h3><i>{{ headers[5] }}:</i></h3>
     <p><h2>{{ question[headers[5]] }}</h2>
     <br>
-    <img src="{{ question['image'] }}" alt="Picture" style="width: 30%;" />
+    {% if question['image'] != '' %}
+        <br><p><h3><i>{{ headers[6] }}:</i></h3>
+        <img src="{{ question['image'] }}" alt="Picture" style="width: 30%;" />
+    {% endif %}
     <br><br>
     <hr><br>
     <p><h3><i>Answers to question {{ question['id'] }}:</i></h3>
