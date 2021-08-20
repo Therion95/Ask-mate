@@ -26,7 +26,7 @@ def question_display(question_id, questions_csv_file, answers_csv_file):
             return question, headers, answers
 
 
-def get_next_id(file):
-    data, headers = list_questions(file)
-    return int(max([head["id"] for head in data])) + 1
+def get_next_id():
+    data, headers = list_questions('data/questions.csv')
+    return len(data) + 1
 
