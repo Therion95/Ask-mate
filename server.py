@@ -5,13 +5,12 @@ import connection
 import data_manager
 
 # GLOBAL directory for the app config
-UPLOAD_FOLDER = 'static/answer_images'
-
+UPLOAD_FOLDER_A = 'static/answer_images'
+UPLOAD_FOLDER_Q = 'static/question_images'
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER_A'] = UPLOAD_FOLDER_A
+app.config['UPLOAD_FOLDER_Q'] = UPLOAD_FOLDER_Q
 
-UPLOAD_FOLDER = 'static/question_images'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # GLOBAL directories to our CSV files:
 QUESTIONS = 'data/questions.csv'
 ANSWERS = 'data/answers.csv'
@@ -111,7 +110,7 @@ def answer_question(question_id):
 
     elif request.method == 'POST':
         data = dict(request.form)
-        data["id"] = data_manager.get_next_id(ANSWERS)
+        data["id"] = data_manager.get_next_id()
         data["submission_time"] = 0
         data["vote_number"] = 0
         data["question_id"] = qid
@@ -119,7 +118,7 @@ def answer_question(question_id):
         image = request.files['image']
 
         if image.filename != '':
-            path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+            path = os.path.join(app.config['UPLOAD_FOLDER_A'], image.filename)
             image.save(path)
             data['image'] = "/" + path.replace("\\", "/")
 
@@ -136,13 +135,13 @@ def display_add_question():
 @app.route('/add_question', methods=['POST'])
 def add_question():
     data = dict(request.form)
-    data["id"] = data_manager.get_next_id(QUESTIONS)
+    data["id"] = data_manager.get_next_id()
     data["view_number"] = 0
     data["vote_number"] = 0
 
     image = request.files['image']
     if image.filename != '':
-        path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+        path = os.path.join(app.config['UPLOAD_FOLDER_Q'], image.filename)
         image.save(path)
         data["image"] = "/" + path.replace("\\", "/")
 
