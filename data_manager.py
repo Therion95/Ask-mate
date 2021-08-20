@@ -1,6 +1,7 @@
 import connection
 
 
+
 def list_questions(csv_file):
     list_of_data = connection.csv_opening(csv_file)
 
@@ -27,5 +28,10 @@ def question_display(question_id, questions_csv_file, answers_csv_file):
 
 def get_next_id():
     data, headers = list_questions('data/questions.csv')
-    return int(max([head["id"] for head in data])) + 1
+    # return int(max([head["id"] for head in data])) + 1
+    return len(data) + 1
+
+
+
+
 

@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 
 import data_manager, connection
@@ -6,6 +7,8 @@ import data_manager, connection
 
 app = Flask(__name__)
 
+UPLOAD_FOLDER = 'static/question_images'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # GLOBAL directories to our CSV files:
 QUESTIONS = 'data/questions.csv'
 ANSWERS = 'data/answers.csv'
@@ -55,9 +58,15 @@ def add_question():
     data["id"] = data_manager.get_next_id()
     data["view_number"] = 0
     data["vote_number"] = 0
-    connection.csv_appending('data/questions.csv', data)
-    return redirect(url_for("question_display"))
 
+    image = request.files['image']
+    if image.filename != '':
+        path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+        image.save(path)
+        data["image"] = "/" + path.replace("\\", "/")
+
+    connection.csv_appending(QUESTIONS, data)
+    return redirect(url_for("question_display", question_id=data["id"]))
 
 if __name__ == "__main__":
     app.run()
