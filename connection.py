@@ -39,6 +39,8 @@ def csv_editing(csv_file, given_id, keys=None, values_to_update=None, method=Non
         headers = get_headers(csv_file)
         data = csv.DictReader(file)
         temp_data = []
+        question_id_return = None
+
         for row in data:
             if int(row['id']) == given_id:
                 if method == 'add':

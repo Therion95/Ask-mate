@@ -129,7 +129,7 @@ def answer_question(question_id):
 
 @app.route('/add_question', methods=['GET'])
 def display_add_question():
-    return render_template('Ask_a_question.html')
+    return render_template('ask.html')
 
 
 @app.route('/add_question', methods=['POST'])
@@ -147,6 +147,7 @@ def add_question():
 
     connection.csv_appending(QUESTIONS, data)
     return redirect(url_for("question_display", question_id=data["id"]))
+
 
 if __name__ == "__main__":
     app.run()
