@@ -2,12 +2,22 @@
 
 {% block head %}
 
-    <title>Main page</title>
+    <title>Ask-Mate: Main page</title>
 
 {% endblock %}
 
 
 {% block body %}
+
+    <h3>Get involved and contribute in helping those who need it!</h3>
+
+    <h4><i>Ask-Mate</i> is a simple questions-answers website. You can find answers to various questions from different categories on Ask-Mate!
+        You may ask questions on any topic and read all the questions and answers posted by other people.</h4>
+    <ul>
+        <li><a href={{ url_for('list_questions') }}>Questions list</a></li>
+        <li><a href={{ url_for('add_question') }}>Ask a question</a></li>
+    </ul>
+
 
 
 {% endblock %}
