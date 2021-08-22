@@ -23,11 +23,11 @@
            <tr class="question">
                <td class="question"><a href={{ url_for('question_voting_up', question_id=question['id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" /></a></td>
                <td class="question"><a href={{ url_for('question_voting_down', question_id=question['id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" /></a></td>
+               <td class="question"><a href={{ url_for("answer_question", question_id=question["id"]) }}><img src="/static/images/answer.png" alt="Answer the question" style="width: 10%"></a></td>
                <td class="question"><a href={{ url_for('question_edit', question_id=question['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" /></a></td>
                <td class="question"><a href={{ url_for('question_delete', question_id=question['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" /></a></td>
            </tr></table>
-    <hr><br>
-    <h3><a href="{{ url_for("answer_question", question_id=question["id"]) }}">Add new answer</a></h3><br><br>
+    
     <br>
     <hr><br>
     <p><h3><i>Answers to question {{ question['id'] }}:</i></h3>
