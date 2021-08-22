@@ -4,13 +4,11 @@ from flask import Flask, render_template, request, redirect, url_for
 import connection
 import data_manager
 
-# GLOBAL directory for the app config
-UPLOAD_FOLDER_A = 'static/answer_images'
-UPLOAD_FOLDER_Q = 'static/question_images'
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER_A'] = UPLOAD_FOLDER_A
-app.config['UPLOAD_FOLDER_Q'] = UPLOAD_FOLDER_Q
 
+app = Flask(__name__)
+# GLOBAL directory for the app config
+UPLOAD_FOLDER_A = os.environ.get('UPLOAD_FOLDER_A')
+UPLOAD_FOLDER_Q = os.environ.get('UPLOAD_FOLDER_Q')
 # GLOBAL directories to our CSV files:
 QUESTIONS = 'data/questions.csv'
 ANSWERS = 'data/answers.csv'
@@ -118,9 +116,9 @@ def answer_question(question_id):
         image = request.files['image']
 
         if image.filename != '':
-            path = os.path.join(app.config['UPLOAD_FOLDER_A'], image.filename)
+            path = (f"{UPLOAD_FOLDER_A}/{image.filename}")
             image.save(path)
-            data['image'] = "/" + path.replace("\\", "/")
+            data["image"] = "/" + path
 
         connection.csv_appending(ANSWERS, data)
 
@@ -141,9 +139,10 @@ def add_question():
 
     image = request.files['image']
     if image.filename != '':
-        path = os.path.join(app.config['UPLOAD_FOLDER_Q'], image.filename)
+        path = (f"{UPLOAD_FOLDER_Q}/{image.filename}")
         image.save(path)
-        data["image"] = "/" + path.replace("\\", "/")
+        data["image"] = "/" + path
+
 
     connection.csv_appending(QUESTIONS, data)
     return redirect(url_for("question_display", question_id=data["id"]))
