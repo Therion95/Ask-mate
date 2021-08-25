@@ -3,15 +3,15 @@ from flask import Flask, render_template, request, redirect, url_for
 
 import connection
 import data_manager
-
+import util
 
 app = Flask(__name__)
 # GLOBAL directory for the app config
 UPLOAD_FOLDER_A = os.environ.get('UPLOAD_FOLDER_A')
 UPLOAD_FOLDER_Q = os.environ.get('UPLOAD_FOLDER_Q')
 # GLOBAL directories to our CSV files:
-QUESTIONS = 'data/questions.csv'
-ANSWERS = 'data/answers.csv'
+QUESTIONS = os.environ.get('QUESTIONS_PATH')
+ANSWERS = os.environ.get('ANSWERS_PATH')
 
 
 @app.route("/")
@@ -19,7 +19,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/list', methods=['get'])
+@app.route('/list', methods=['GET'])
 def list_questions():
     global QUESTIONS, ANSWERS
     data, headers = data_manager.list_questions(QUESTIONS)
@@ -27,7 +27,7 @@ def list_questions():
     return render_template('list.html', data=data, headers=headers)
 
 
-@app.route('/question/<int:question_id>', methods=['get'])
+@app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
     global QUESTIONS, ANSWERS
     question_to_display, headers, answers = data_manager.question_display(question_id, QUESTIONS, ANSWERS)
@@ -45,8 +45,8 @@ def question_edit(question_id):
 
     elif request.method == 'POST':
         edited_question = dict(request.form)
-        keys, values = list(edited_question.keys()), list(edited_question.values())
-        connection.csv_editing(QUESTIONS, question_id, keys=keys, values_to_update=values)
+        connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
+                               values_to_update=list(edited_question.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -99,54 +99,31 @@ def answer_voting_down(answer_id):
     return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/question/<question_id>/new_answer', methods=['GET', 'POST'])
-def answer_question(question_id):
-    qid = int(question_id)
-
+@app.route('/add_question', methods=['GET', 'POST'])
+def add_question():
     if request.method == 'GET':
-        return render_template('answer_question.html', question_id=qid)
+
+        return render_template('ask.html')
 
     elif request.method == 'POST':
-        data = dict(request.form)
-        data["id"] = data_manager.get_next_id(ANSWERS)
-        data["submission_time"] = 0
-        data["vote_number"] = 0
-        data["question_id"] = qid
+        requested_data = dict(request.form)
+        requested_image = request.files['image']
+        new_id = data_manager.add_question(requested_data, requested_image)
 
-        image = request.files['image']
-
-        if image.filename != '':
-            path = f"{UPLOAD_FOLDER_A}/{image.filename}"
-            image.save(path)
-            data["image"] = path
-
-        connection.csv_appending(ANSWERS, data)
-
-        return redirect(url_for('question_display', question_id=qid))
+        return redirect(url_for("question_display", question_id=new_id))
 
 
-@app.route('/add_question', methods=['GET'])
-def display_add_question():
-    return render_template('ask.html')
+@app.route('/question/<int:question_id>/new_answer', methods=['GET', 'POST'])
+def answer_question(question_id):
+    if request.method == 'GET':
+        return render_template('answer_question.html', question_id=question_id)
 
+    elif request.method == 'POST':
+        requested_data = dict(request.form)
+        requested_image = request.files['image']
+        data_manager.answer_question(requested_data, requested_image, question_id)
 
-@app.route('/add_question', methods=['POST'])
-def add_question():
-    data = dict(request.form)
-    print(data_manager.get_next_id(QUESTIONS))
-    data["id"] = data_manager.get_next_id(QUESTIONS)
-    print(data['id'])
-    data["view_number"] = 0
-    data["vote_number"] = 0
-
-    image = request.files['image']
-    if image.filename != '':
-        path = f"{UPLOAD_FOLDER_Q}/{image.filename}"
-        image.save(path)
-        data["image"] = path
-    print(data)
-    connection.csv_appending(QUESTIONS, data)
-    return redirect(url_for("question_display", question_id=data["id"]))
+        return redirect(url_for('question_display', question_id=question_id))
 
 
 if __name__ == "__main__":

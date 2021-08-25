@@ -1,12 +1,20 @@
+import os
+
 import connection
+import util
+
+# GLOBAL directory for the app config
+UPLOAD_FOLDER_A = os.environ.get('UPLOAD_FOLDER_A')
+UPLOAD_FOLDER_Q = os.environ.get('UPLOAD_FOLDER_Q')
+# GLOBAL directories to our CSV files:
+QUESTIONS = os.environ.get('QUESTIONS_PATH')
+ANSWERS = os.environ.get('ANSWERS_PATH')
 
 
 def list_questions(csv_file):
     list_of_data = connection.csv_opening(csv_file)
 
     headers = list(list_of_data[0].keys())
-
-    # TODO: implement order_by().all() functionality
 
     return list_of_data, headers
 
@@ -27,7 +35,21 @@ def question_display(question_id, questions_csv_file, answers_csv_file):
             return question, headers, answers
 
 
-def get_next_id(csv_file):
-    data, headers = list_questions(csv_file)
-    return len(data) + 1
+def add_question(requested_data, requested_image):
+    path = connection.upload_file(requested_image)
+    keys = ['id', 'title', 'message', 'view_number', 'vote_number', 'image']
+    values = [util.get_next_id(QUESTIONS), requested_data['title'], requested_data['message'], 0, 0, path]
+    prepared_dict = {k:v for k, v in zip(keys, values)}
+
+    return connection.csv_appending(QUESTIONS, prepared_dict)
+
+
+def answer_question(requested_data, requested_image, question_id):
+    path = connection.upload_file(requested_image)
+    keys = ['id', 'message', 'vote_number', 'question_id', 'image']
+    values = [util.get_next_id(ANSWERS), requested_data['message'], 0, question_id, path]
+    prepared_dict = {k:v for k, v in zip(keys, values)}
+
+    return connection.csv_appending(ANSWERS, prepared_dict)
+
 

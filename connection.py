@@ -1,6 +1,13 @@
 import csv
 import os
 
+# GLOBAL directory for the app config
+UPLOAD_FOLDER_A = os.environ.get('UPLOAD_FOLDER_A')
+UPLOAD_FOLDER_Q = os.environ.get('UPLOAD_FOLDER_Q')
+# GLOBAL directories to our CSV files:
+QUESTIONS = os.environ.get('QUESTIONS_PATH')
+ANSWERS = os.environ.get('ANSWERS_PATH')
+
 
 def get_headers(csv_file):
     with open(csv_file, "r") as file:
@@ -95,3 +102,11 @@ def csv_delete_row(csv_file, question_id):
 
     if question_id_return:
         return question_id_return
+
+
+def upload_file(given_image):
+    if given_image.filename != '':
+        path = f"{UPLOAD_FOLDER_Q}/{given_image.filename}"
+        given_image.save(path)
+
+        return path
