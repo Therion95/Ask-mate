@@ -15,7 +15,7 @@
     <p><h2>{{ question[headers[5]] }}</h2>
     {% if question['image'] != '' %}
         <br><p><h3><i>{{ headers[6] }}:</i></h3>
-        <img src="{{ question['image'] }}" alt="Picture" style="width: 30%;" />
+        <img src="/{{ question['image'] }}" alt="Picture" style="width: 30%;" />
     {% endif %}
     <h5>Actions:</h5><hr>
     <table>
@@ -35,7 +35,7 @@
        <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['message'] }}
            <br>
            {% if answer['image'] != "" %}
-               <img src="{{ answer['image'] }}" alt="Picture" style="width: 30%;" /><br><br>
+               <img src="/{{ answer['image'] }}" alt="Picture" style="width: 30%;" /><br><br>
            {% endif %}
            <p><h5>Actions:</h5>
            <hr>

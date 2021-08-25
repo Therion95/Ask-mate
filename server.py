@@ -108,7 +108,7 @@ def answer_question(question_id):
 
     elif request.method == 'POST':
         data = dict(request.form)
-        data["id"] = data_manager.get_next_id()
+        data["id"] = data_manager.get_next_id(ANSWERS)
         data["submission_time"] = 0
         data["vote_number"] = 0
         data["question_id"] = qid
@@ -116,9 +116,9 @@ def answer_question(question_id):
         image = request.files['image']
 
         if image.filename != '':
-            path = (f"{UPLOAD_FOLDER_A}/{image.filename}")
+            path = f"{UPLOAD_FOLDER_A}/{image.filename}"
             image.save(path)
-            data["image"] = "/" + path
+            data["image"] = path
 
         connection.csv_appending(ANSWERS, data)
 
@@ -133,17 +133,18 @@ def display_add_question():
 @app.route('/add_question', methods=['POST'])
 def add_question():
     data = dict(request.form)
-    data["id"] = data_manager.get_next_id()
+    print(data_manager.get_next_id(QUESTIONS))
+    data["id"] = data_manager.get_next_id(QUESTIONS)
+    print(data['id'])
     data["view_number"] = 0
     data["vote_number"] = 0
 
     image = request.files['image']
     if image.filename != '':
-        path = (f"{UPLOAD_FOLDER_Q}/{image.filename}")
+        path = f"{UPLOAD_FOLDER_Q}/{image.filename}"
         image.save(path)
-        data["image"] = "/" + path
-
-
+        data["image"] = path
+    print(data)
     connection.csv_appending(QUESTIONS, data)
     return redirect(url_for("question_display", question_id=data["id"]))
 

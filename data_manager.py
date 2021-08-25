@@ -21,12 +21,13 @@ def question_display(question_id, questions_csv_file, answers_csv_file):
     questions, headers = list_questions(questions_csv_file)
     answers = [answer for answer in connection.csv_opening(answers_csv_file)
                if int(answer['question_id']) == question_id]
+
     for question in questions:
         if int(question['id']) == question_id:
             return question, headers, answers
 
 
-def get_next_id():
-    data, headers = list_questions('data/questions.csv')
+def get_next_id(csv_file):
+    data, headers = list_questions(csv_file)
     return len(data) + 1
 
