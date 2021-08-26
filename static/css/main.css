@@ -1,0 +1,14 @@
+body {background-color: #ebebeb;}
+
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #444444;
+    font-size: 11pt;
+    background-color: #FAFAFA;
+}
+    th, td:not(.answer, .question) {border-bottom: 1px solid #ddd;padding: 15px;text-align: left;
+}
+    th:not(.answer, .question) {background-color: #04AA6D;color: white;font-size: 17px;font-weight: bold;
+    }
+    tr:not(.answer, .question):not(.answer, .question):nth-child(odd) {background-color: #f2f2f2;}
+    div {padding: 15px;}

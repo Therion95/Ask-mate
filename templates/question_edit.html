@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <title>Ask-Mate: Edit a question {{ question['id'] }}</title>
+
+{% endblock %}
+
+{% block body %}
+
+    <form id="edit" action="{{ url_for('question_edit', question_id=question['id']) }}" method="post">
+</form>
+    <label for="title">Edit a question's title:<br>
+<textarea name="title" form="edit" rows="3">{{ question['title'] }}</textarea></label><br>
+    <label for="message">Edit a question's message:<br>
+    <textarea name="message" form="edit" rows="10">{{ question['message'] }}</textarea></label><br>
+    <input type="submit" form="edit" value="Submit!">
+{% endblock %}
