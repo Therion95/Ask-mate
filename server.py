@@ -51,6 +51,22 @@ def question_edit(question_id):
         return redirect(url_for('question_display', question_id=question_id))
 
 
+@app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
+def answer_edit(answer_id):
+    if request.method == 'GET':
+        answer_to_edit = data_manager.display_answer(answer_id)
+
+        return render_template('answer_edit.html', answer=answer_to_edit)
+
+    elif request.method == 'POST':
+        edited_answer = dict(request.form)
+        question_id = int(data_manager.display_answer(answer_id)['question_id'])
+        connection.csv_editing(ANSWERS, answer_id, keys=list(edited_answer.keys()),
+                               values_to_update=list(edited_answer.values()))
+
+        return redirect(url_for('question_display', question_id=question_id))
+
+
 @app.route('/question/<int:question_id>/delete', methods=['GET'])
 def question_delete(question_id):
     global QUESTIONS
