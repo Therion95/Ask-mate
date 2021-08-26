@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/main.css') }}">
+    {% block head %}{% endblock %}
+
+</head>
+<body>
+<p><h1><a href="/">Ask-Mate: now you know.</a></h1>
+<hr>
+    {% block body %}{% endblock %}
+
+</body>
+</html>
