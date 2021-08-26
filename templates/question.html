@@ -44,6 +44,7 @@
            <tr class="answer">
                <td class="answer"><a href={{ url_for('answer_voting_up', answer_id=answer['id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" /></a></td>
                <td class="answer"><a href={{ url_for('answer_voting_down', answer_id=answer['id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" /></a></td>
+               <td class="answer"><a href={{ url_for('answer_edit', answer_id=answer['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" /></a></td>
                <td class="answer"><a href={{ url_for('answer_delete', answer_id=answer['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" /></a></td>
            </tr></table>
            </div><br>
