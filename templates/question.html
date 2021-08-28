@@ -21,11 +21,11 @@
     <table>
             <tr><th class="question">{{ headers[3] }}: {{ question[headers[3]] }}</th></tr>
            <tr class="question">
-               <td class="question"><a href={{ url_for('question_voting_up', question_id=question['id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" /></a></td>
-               <td class="question"><a href={{ url_for('question_voting_down', question_id=question['id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" /></a></td>
-               <td class="question"><a href={{ url_for("answer_question", question_id=question["id"]) }}><img src="/static/images/answer.png" alt="Answer the question" style="width: 10%"></a></td>
-               <td class="question"><a href={{ url_for('question_edit', question_id=question['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" /></a></td>
-               <td class="question"><a href={{ url_for('question_delete', question_id=question['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" /></a></td>
+               <td class="question"><a href={{ url_for('question_voting_up', question_id=question['id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" title="Vote up"/></a></td>
+               <td class="question"><a href={{ url_for('question_voting_down', question_id=question['id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" title="Vote down"/></a></td>
+               <td class="question"><a href={{ url_for("answer_question", question_id=question["id"]) }}><img src="/static/images/answer.png" alt="Answer the question" style="width: 10%" title="Answer the question"></a></td>
+               <td class="question"><a href={{ url_for('question_edit', question_id=question['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" title="Edit"/></a></td>
+               <td class="question"><a href={{ url_for('question_delete', question_id=question['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" title="Delete"/></a></td>
            </tr></table>
     
     <br>
@@ -42,10 +42,10 @@
            <table>
                <tr><th class="answer">{{ headers[3] }}: {{ answer[headers[3]] }}</th></tr>
            <tr class="answer">
-               <td class="answer"><a href={{ url_for('answer_voting_up', answer_id=answer['id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" /></a></td>
-               <td class="answer"><a href={{ url_for('answer_voting_down', answer_id=answer['id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" /></a></td>
-               <td class="answer"><a href={{ url_for('answer_edit', answer_id=answer['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" /></a></td>
-               <td class="answer"><a href={{ url_for('answer_delete', answer_id=answer['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" /></a></td>
+               <td class="answer"><a href={{ url_for('answer_voting_up', answer_id=answer['id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" title="Vote up"/></a></td>
+               <td class="answer"><a href={{ url_for('answer_voting_down', answer_id=answer['id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" title="Vote down"/></a></td>
+               <td class="answer"><a href={{ url_for('answer_edit', answer_id=answer['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" title="Edit"/></a></td>
+               <td class="answer"><a href={{ url_for('answer_delete', answer_id=answer['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" title="Delete"/></a></td>
            </tr></table>
            </div><br>
     {% endfor %}
