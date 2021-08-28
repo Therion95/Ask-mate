@@ -45,8 +45,7 @@ def question_edit(question_id):
 
     elif request.method == 'POST':
         edited_question = dict(request.form)
-        csv_connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
-                                   values_to_update=list(edited_question.values()))
+        data_manager.record_edit(QUESTIONS, question_id, list(edited_question.keys()), list(edited_question.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -61,8 +60,7 @@ def answer_edit(answer_id):
     elif request.method == 'POST':
         edited_answer = dict(request.form)
         question_id = int(data_manager.display_answer(answer_id)['question_id'])
-        csv_connection.csv_editing(ANSWERS, answer_id, keys=list(edited_answer.keys()),
-                                   values_to_update=list(edited_answer.values()))
+        data_manager.record_edit(ANSWERS, answer_id, list(edited_answer.keys()), list(edited_answer.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -70,7 +68,7 @@ def answer_edit(answer_id):
 @app.route('/question/<int:question_id>/delete', methods=['GET'])
 def question_delete(question_id):
     global QUESTIONS
-    csv_connection.csv_delete_row(QUESTIONS, question_id)
+    data_manager.record_delete(QUESTIONS, question_id)
 
     return redirect(url_for('list_questions'))
 
@@ -78,7 +76,7 @@ def question_delete(question_id):
 @app.route('/answer/<int:answer_id>/delete', methods=['GET'])
 def answer_delete(answer_id):
     global ANSWERS
-    question_id = csv_connection.csv_delete_row(ANSWERS, answer_id)
+    question_id = data_manager.record_delete(ANSWERS, answer_id)
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -86,7 +84,7 @@ def answer_delete(answer_id):
 @app.route('/question/<int:question_id>/vote_up', methods=['GET'])
 def question_voting_up(question_id):
     global QUESTIONS
-    csv_connection.csv_editing(QUESTIONS, question_id, method='add')
+    data_manager.voting_for_up_down(QUESTIONS, question_id, 'add')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -94,7 +92,7 @@ def question_voting_up(question_id):
 @app.route('/question/<int:question_id>/vote_down', methods=['GET'])
 def question_voting_down(question_id):
     global QUESTIONS
-    csv_connection.csv_editing(QUESTIONS, question_id, method='subtract')
+    data_manager.voting_for_up_down(QUESTIONS, question_id, 'subtract')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -102,7 +100,7 @@ def question_voting_down(question_id):
 @app.route('/answer/<int:answer_id>/vote_up', methods=['GET'])
 def answer_voting_up(answer_id):
     global ANSWERS
-    question_id = csv_connection.csv_editing(ANSWERS, answer_id, method='add')
+    question_id = data_manager.voting_for_up_down(ANSWERS, answer_id, 'add')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -110,7 +108,7 @@ def answer_voting_up(answer_id):
 @app.route('/answer/<int:answer_id>/vote_down', methods=['GET'])
 def answer_voting_down(answer_id):
     global ANSWERS
-    question_id = csv_connection.csv_editing(ANSWERS, answer_id, method='subtract')
+    question_id = data_manager.voting_for_up_down(ANSWERS, answer_id, 'subtract')
 
     return redirect(url_for('question_display', question_id=question_id))
 

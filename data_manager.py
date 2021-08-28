@@ -60,3 +60,20 @@ def display_answer(answer_id):
         if int(answer['id']) == int(answer_id):
             return answer
 
+
+def voting_for_up_down(file, given_id, method):
+    returned_id = csv_connection.csv_editing(file, given_id, method=method)
+
+    if returned_id:
+        return returned_id
+
+
+def record_edit(file, given_id, keys, values):
+    csv_connection.csv_editing(file, given_id, keys=keys, values_to_update=values)
+
+
+def record_delete(file, given_id):
+    returned_id = csv_connection.csv_delete_row(file, given_id)
+
+    if returned_id:
+        return returned_id
