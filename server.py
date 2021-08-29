@@ -21,16 +21,31 @@ def index():
 
 @app.route('/list', methods=['GET'])
 def list_questions():
-    global QUESTIONS, ANSWERS
-    data, headers = data_manager.list_questions(QUESTIONS)
+    # CSV version:
 
-    return render_template('list.html', data=data, headers=headers)
+    # global QUESTIONS, ANSWERS
+    # data, headers = data_manager.list_questions(QUESTIONS)
+    #
+    # return render_template('list.html', data=data, headers=headers)
+
+    # DB version:
+    db_data = data_manager.list_column('question')
+    db_headers = db_data[0].keys()
+    return render_template('list.html', data=db_data, headers=db_headers)
 
 
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
-    global QUESTIONS, ANSWERS
-    question_to_display, headers, answers = data_manager.question_display(question_id, QUESTIONS, ANSWERS)
+    # CSV version:
+
+    # global QUESTIONS, ANSWERS
+    # question_to_display, headers, answers = data_manager.question_display(question_id, QUESTIONS, ANSWERS)
+    #
+    # return render_template('question.html', question=question_to_display, headers=headers, answers=answers)
+
+    # DB version:
+
+    question_to_display, headers, answers = data_manager.question_display(question_id, 'question')
 
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers)
 
@@ -122,7 +137,7 @@ def add_question():
     elif request.method == 'POST':
         requested_data = dict(request.form)
         requested_image = request.files['image']
-        new_id = data_manager.add_question(requested_data, requested_image)
+        new_id = data_manager.add_question(requested_data, requested_image, 'question')
 
         return redirect(url_for("question_display", question_id=new_id))
 

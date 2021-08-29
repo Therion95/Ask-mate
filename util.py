@@ -7,4 +7,4 @@ def get_next_id(csv_file):
 
 
 def current_date():
-    return datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
