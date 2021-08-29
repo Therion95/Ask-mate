@@ -1,6 +1,12 @@
 import os
 
-import connection
+import psycopg2
+import psycopg2.extras
+from psycopg2 import sql
+
+import csv_connection
+import db_connection
+import files_connection
 import util
 
 # GLOBAL directory for the app config
@@ -40,7 +46,6 @@ def question_display(question_id, questions_csv_file, answers_csv_file, comments
         if int(question['id']) == question_id:
             return question, headers, answers, comments_q, comments_a
 
-
 def add_question(requested_data, requested_image):
     path = connection.upload_file(requested_image, UPLOAD_FOLDER_Q)
     keys = ['id', 'submission_time', 'title', 'message', 'view_number', 'vote_number', 'image']
@@ -51,7 +56,7 @@ def add_question(requested_data, requested_image):
 
 
 def answer_question(requested_data, requested_image, question_id):
-    path = connection.upload_file(requested_image, UPLOAD_FOLDER_A)
+    path = connection.upload_file(requested_image)
     keys = ['id', 'submission_time', 'message', 'vote_number', 'question_id', 'image']
     values = [util.get_next_id(ANSWERS), util.current_date(), requested_data['message'], 0, question_id, path]
     prepared_dict = {k: v for k, v in zip(keys, values)}
@@ -98,3 +103,67 @@ def edit_answer(answer_id, edited_answer, new_image):
 def delete_image(answer_id):
     os.remove(display_answer(answer_id)['image'])
     connection.csv_editing(ANSWERS, answer_id, ['image'], [""])
+
+def voting_for_up_down(file, given_id, method):
+    returned_id = csv_connection.csv_editing(file, given_id, method=method)
+
+    if returned_id:
+        return returned_id
+
+
+def record_edit(file, given_id, keys, values):
+    csv_connection.csv_editing(file, given_id, keys=keys, values_to_update=values)
+
+
+def record_delete(file, given_id):
+    returned_id = csv_connection.csv_delete_row(file, given_id)
+
+    if returned_id:
+        return returned_id
+
+
+# DB version:
+
+@db_connection.executor
+def list_column(cursor, db_table):
+    query = """
+    SELECT *
+    FROM {table}
+    order by id;
+    """
+    cursor.execute(sql.SQL(query).format(table=sql.Identifier(db_table)).as_string(cursor))
+
+    return [dict(row) for row in cursor.fetchall()]
+
+
+@db_connection.executor
+def get_headers(cursor, db_table):
+    return list(list_column(db_table)[0].keys())
+
+
+@db_connection.executor
+def question_display(cursor, question_id, db_table):
+    db_data, headers = list_column(db_table), get_headers(db_table)
+    answers = [answer for answer in list_column('answer')
+               if int(answer['question_id']) == question_id]
+
+    for question in db_data:
+        if int(question['id']) == question_id:
+            return question, headers, answers
+
+
+@db_connection.executor
+def add_question(cursor, requested_data, requested_image, db_table):
+    path = files_connection.upload_file(requested_image)
+    # table_keys = tuple(get_headers(db_table))
+
+    new_values = (util.current_date(), 0, 0, requested_data['title'], requested_data['message'], path)
+    query = """
+    INSERT INTO question (submission_time, view_number, vote_number, title, message, image)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    RETURNING id;
+    """
+    cursor.execute(query, new_values)
+
+    # cursor.execute(sql.SQL(query).format(table=sql.Identifier(db_table)).as_string(cursor), (util.current_date(), '0', '0', requested_data['title'], requested_data['message'], path,))
+    return dict(cursor.fetchone())['id']
