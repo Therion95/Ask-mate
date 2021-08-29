@@ -71,3 +71,8 @@ def edit_answer(answer_id, edited_answer, new_image):
     values = [util.current_date(), edited_answer['message'], new_path]
 
     return connection.csv_editing(ANSWERS, answer_id, keys, values)
+
+
+def delete_image(answer_id):
+    os.remove(display_answer(answer_id)['image'])
+    connection.csv_editing(ANSWERS, answer_id, ['image'], [""])

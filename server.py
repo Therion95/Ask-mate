@@ -83,6 +83,12 @@ def answer_delete(answer_id):
     return redirect(url_for('question_display', question_id=question_id))
 
 
+@app.route('/answer/<int:answer_id>/delete-image', methods=['GET'])
+def delete_image(answer_id):
+    data_manager.delete_image(answer_id)
+    return redirect(url_for('answer_edit', answer_id=answer_id))
+
+
 @app.route('/question/<int:question_id>/vote_up', methods=['GET'])
 def question_voting_up(question_id):
     global QUESTIONS
