@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <title>Add a comment</title>
+
+{% endblock %}
+
+{% block body %}
+
+    <h1>Add a comment</h1><br>
+    <form action="{{ url_for("add_comment_to_answer", question_id=question_id, answer_id=answer_id) }}" method="post">
+        <label for="message"></label><br>
+        <textarea name="message" id="message" minlength="5" maxlength="1000" rows="4" cols="60"></textarea>
+        <br><br>
+        <input type="submit" value="Comment">
+    </form>
+
+{% endblock %}

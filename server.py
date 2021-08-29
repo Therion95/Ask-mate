@@ -12,6 +12,8 @@ UPLOAD_FOLDER_Q = os.environ.get('UPLOAD_FOLDER_Q')
 # GLOBAL directories to our CSV files:
 QUESTIONS = os.environ.get('QUESTIONS_PATH')
 ANSWERS = os.environ.get('ANSWERS_PATH')
+COMMENTS_Q = os.environ.get('COMMENTS_Q')
+COMMENTS_A = os.environ.get('COMMENTS_A')
 
 
 @app.route("/")
@@ -29,17 +31,19 @@ def list_questions():
 
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
-    global QUESTIONS, ANSWERS
-    question_to_display, headers, answers = data_manager.question_display(question_id, QUESTIONS, ANSWERS)
+    global QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A
+    question_to_display, headers, answers, comments, comments_a = data_manager.question_display(question_id, QUESTIONS,
+                                                                                        ANSWERS, COMMENTS_Q, COMMENTS_A)
 
-    return render_template('question.html', question=question_to_display, headers=headers, answers=answers)
+    return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
+                           comments=comments, comments_a=comments_a)
 
 
 @app.route('/question/<int:question_id>/edit', methods=['GET', 'POST'])
 def question_edit(question_id):
-    global QUESTIONS, ANSWERS
+    global QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A
     if request.method == 'GET':
-        question_to_edit = data_manager.question_display(question_id, QUESTIONS, ANSWERS)[0]
+        question_to_edit = data_manager.question_display(question_id, QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A)[0]
 
         return render_template('question_edit.html', question=question_to_edit)
 
@@ -140,6 +144,28 @@ def answer_question(question_id):
         data_manager.answer_question(requested_data, requested_image, question_id)
 
         return redirect(url_for('question_display', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/new_comment', methods=['GET', 'POST'])
+def add_comment_to_question(question_id):
+    if request.method == 'GET':
+        return render_template('comment_question.html',  question_id=question_id)
+    elif request.method == 'POST':
+        requested_data = dict(request.form)
+        data_manager.comment_question(requested_data, question_id)
+
+        return redirect(url_for('question_display', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/<int:answer_id>/new_comment', methods=['GET', 'POST'])
+def add_comment_to_answer(question_id, answer_id):
+    if request.method == 'GET':
+        return render_template('comment_answer.html',  answer_id=answer_id, question_id=question_id)
+    elif request.method == 'POST':
+        requested_data = dict(request.form)
+        data_manager.comment_answer(requested_data, answer_id, question_id)
+
+        return redirect(url_for('question_display', answer_id=answer_id, question_id=question_id))
 
 
 if __name__ == "__main__":
