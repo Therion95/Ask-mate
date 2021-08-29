@@ -104,12 +104,7 @@ def csv_delete_row(csv_file, question_id):
         return question_id_return
 
 
-def upload_file(given_image, location):
-    if location == 'answer':
-        folder = UPLOAD_FOLDER_A
-    elif location == 'question':
-        folder = UPLOAD_FOLDER_Q
-
+def upload_file(given_image, folder):
     if given_image.filename != '':
         path = f"{folder}/{given_image.filename}"
         given_image.save(path)

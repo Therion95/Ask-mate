@@ -36,7 +36,7 @@ def question_display(question_id, questions_csv_file, answers_csv_file):
 
 
 def add_question(requested_data, requested_image):
-    path = connection.upload_file(requested_image, location='question')
+    path = connection.upload_file(requested_image, UPLOAD_FOLDER_Q)
     keys = ['id', 'submission_time', 'title', 'message', 'view_number', 'vote_number', 'image']
     values = [util.get_next_id(QUESTIONS), util.current_date(), requested_data['title'], requested_data['message'], 0, 0, path]
     prepared_dict = {k: v for k, v in zip(keys, values)}
@@ -45,7 +45,7 @@ def add_question(requested_data, requested_image):
 
 
 def answer_question(requested_data, requested_image, question_id):
-    path = connection.upload_file(requested_image, location='answer')
+    path = connection.upload_file(requested_image, UPLOAD_FOLDER_A)
     keys = ['id', 'submission_time', 'message', 'vote_number', 'question_id', 'image']
     values = [util.get_next_id(ANSWERS), util.current_date(), requested_data['message'], 0, question_id, path]
     prepared_dict = {k: v for k, v in zip(keys, values)}
@@ -62,7 +62,7 @@ def display_answer(answer_id):
 
 def edit_answer(answer_id, edited_answer, new_image):
     if new_image.filename != '':
-        new_path = connection.upload_file(new_image, location='answer')
+        new_path = connection.upload_file(new_image, UPLOAD_FOLDER_A)
         os.remove(display_answer(answer_id)['image'])
     else:
         new_path = display_answer(answer_id)['image']
