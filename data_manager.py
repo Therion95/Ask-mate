@@ -59,3 +59,15 @@ def display_answer(answer_id):
         if int(answer['id']) == int(answer_id):
             return answer
 
+
+def edit_answer(answer_id, edited_answer, new_image):
+    if new_image.filename != '':
+        new_path = connection.upload_file(new_image, location='answer')
+        os.remove(display_answer(answer_id)['image'])
+    else:
+        new_path = display_answer(answer_id)['image']
+
+    keys = ['submission_time', 'message', 'image']
+    values = [util.current_date(), edited_answer['message'], new_path]
+
+    return connection.csv_editing(ANSWERS, answer_id, keys, values)

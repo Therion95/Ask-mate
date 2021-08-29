@@ -60,9 +60,9 @@ def answer_edit(answer_id):
 
     elif request.method == 'POST':
         edited_answer = dict(request.form)
+        new_image = request.files['image']
+        data_manager.edit_answer(answer_id, edited_answer, new_image)
         question_id = int(data_manager.display_answer(answer_id)['question_id'])
-        connection.csv_editing(ANSWERS, answer_id, keys=list(edited_answer.keys()),
-                               values_to_update=list(edited_answer.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 

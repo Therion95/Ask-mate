@@ -7,10 +7,12 @@
 {% endblock %}
 
 {% block body %}
-
-    <form id="edit" action="{{ url_for('answer_edit', answer_id=answer['id']) }}" method="post">
-</form>
-    <label for="message">Edit a answer's message:<br>
-    <textarea name="message" form="edit" rows="10">{{ answer['message'] }}</textarea></label><br>
-    <input type="submit" form="edit" value="Submit!">
+    <h1>Edit an answer</h1><br>
+    <form action="{{ url_for('answer_edit', answer_id=answer['id']) }}" method="post" enctype="multipart/form-data">
+        <label for="message">Edit a answer's message:</label><br>
+        <textarea name="message" id="message" rows="4" cols="60">{{ answer['message'] }}</textarea><br><br>
+        <label for="image">Upload new image:</label><br>
+        <input  type="file" name="image" id="image"><br><br>
+        <input type="submit" value="Edit">
+    </form>
 {% endblock %}
