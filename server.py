@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
 
-import connection
+import csv_connection
 import data_manager
 import util
 
@@ -32,11 +32,12 @@ def list_questions():
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
     global QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A
+    tags = data_manager.get_tag_names_by_question_id(question_id)
     question_to_display, headers, answers, comments, comments_a = data_manager.question_display(question_id, QUESTIONS,
                                                                                         ANSWERS, COMMENTS_Q, COMMENTS_A)
 
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
-                           comments=comments, comments_a=comments_a)
+                           comments=comments, comments_a=comments_a, tags=tags)
 
 
 @app.route('/question/<int:question_id>/edit', methods=['GET', 'POST'])
@@ -49,7 +50,7 @@ def question_edit(question_id):
 
     elif request.method == 'POST':
         edited_question = dict(request.form)
-        connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
+        csv_connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
                                values_to_update=list(edited_question.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
@@ -74,7 +75,7 @@ def answer_edit(answer_id):
 @app.route('/question/<int:question_id>/delete', methods=['GET'])
 def question_delete(question_id):
     global QUESTIONS
-    connection.csv_delete_row(QUESTIONS, question_id)
+    csv_connection.csv_delete_row(QUESTIONS, question_id)
 
     return redirect(url_for('list_questions'))
 
@@ -82,7 +83,7 @@ def question_delete(question_id):
 @app.route('/answer/<int:answer_id>/delete', methods=['GET'])
 def answer_delete(answer_id):
     global ANSWERS
-    question_id = connection.csv_delete_row(ANSWERS, answer_id)
+    question_id = csv_connection.csv_delete_row(ANSWERS, answer_id)
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -96,7 +97,7 @@ def delete_image(answer_id):
 @app.route('/question/<int:question_id>/vote_up', methods=['GET'])
 def question_voting_up(question_id):
     global QUESTIONS
-    connection.csv_editing(QUESTIONS, question_id, method='add')
+    csv_connection.csv_editing(QUESTIONS, question_id, method='add')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -104,7 +105,7 @@ def question_voting_up(question_id):
 @app.route('/question/<int:question_id>/vote_down', methods=['GET'])
 def question_voting_down(question_id):
     global QUESTIONS
-    connection.csv_editing(QUESTIONS, question_id, method='subtract')
+    csv_connection.csv_editing(QUESTIONS, question_id, method='subtract')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -112,7 +113,7 @@ def question_voting_down(question_id):
 @app.route('/answer/<int:answer_id>/vote_up', methods=['GET'])
 def answer_voting_up(answer_id):
     global ANSWERS
-    question_id = connection.csv_editing(ANSWERS, answer_id, method='add')
+    question_id = csv_connection.csv_editing(ANSWERS, answer_id, method='add')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -120,7 +121,7 @@ def answer_voting_up(answer_id):
 @app.route('/answer/<int:answer_id>/vote_down', methods=['GET'])
 def answer_voting_down(answer_id):
     global ANSWERS
-    question_id = connection.csv_editing(ANSWERS, answer_id, method='subtract')
+    question_id = csv_connection.csv_editing(ANSWERS, answer_id, method='subtract')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -172,6 +173,29 @@ def add_comment_to_answer(question_id, answer_id):
         data_manager.comment_answer(requested_data, answer_id, question_id)
 
         return redirect(url_for('question_display', answer_id=answer_id, question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/new-tag', methods=['GET', 'POST'])
+def new_tag(question_id):
+    if request.method == 'GET':
+        all_tags = data_manager.get_tags()
+        tags_for_id = data_manager.get_tag_names_by_question_id(question_id)
+
+        return render_template('new_tag.html', question_id=question_id, all_tags=all_tags, tags=tags_for_id)
+
+    elif request.method == 'POST':
+        tags = request.form.getlist('tag')
+        data_manager.insert_updated_tags(question_id, tags)
+
+        return redirect(url_for('question_display', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/define-new-tag', methods=['POST'])
+def define_new_tag(question_id):
+    tag = dict(request.form)
+    data_manager.add_tag(tag['new_tag'])
+
+    return redirect(url_for('new_tag', question_id=question_id))
 
 
 if __name__ == "__main__":
