@@ -127,7 +127,7 @@ def record_delete(file, given_id):
 # DB version:
 
 @db_connection.executor
-def db_list_column(cursor, db_table):
+def list_column(cursor, db_table):
     query = """
     SELECT *
     FROM {table}
@@ -139,14 +139,14 @@ def db_list_column(cursor, db_table):
 
 
 @db_connection.executor
-def db_get_headers(cursor, db_table):
-    return list(db_list_column(db_table)[0].keys())
+def get_headers(cursor, db_table):
+    return list(list_column(db_table)[0].keys())
 
 
 @db_connection.executor
-def db_question_display(cursor, question_id, db_table):
-    db_data, headers = db_list_column(db_table), db_get_headers(db_table)
-    answers = [answer for answer in db_list_column('answer')
+def question_display(cursor, question_id, db_table):
+    db_data, headers = list_column(db_table), get_headers(db_table)
+    answers = [answer for answer in list_column('answer')
                if int(answer['question_id']) == question_id]
 
     for question in db_data:
@@ -155,7 +155,7 @@ def db_question_display(cursor, question_id, db_table):
 
 
 @db_connection.executor
-def db_add_question(cursor, requested_data, requested_image, db_table):
+def add_question(cursor, requested_data, requested_image, db_table):
     path = files_connection.upload_file(requested_image)
     # table_keys = tuple(get_headers(db_table))
 
@@ -216,6 +216,8 @@ def add_tag(cursor, new_tag):
     tag_id = get_new_id()
     cursor.execute(query, [tag_id, new_tag])
 
+#INSERT INTO tag(name)
+#VALUES (%s)
 
 @db_connection.executor
 def get_tags_id(cursor, tags):
