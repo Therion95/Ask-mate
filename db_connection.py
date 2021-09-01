@@ -4,7 +4,6 @@ import psycopg2
 import psycopg2.extras
 
 
-
 def connect_to_db():
     user_name, password, host, database_name = \
         os.environ.get('PSQL_USER_NAME'), os.environ.get('PSQL_PASSWORD'), \
