@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for
 
 import csv_connection
-import data_manager
+import db_data_manager
 import util
 
 app = Flask(__name__)
@@ -29,7 +29,7 @@ def list_questions():
     # return render_template('list.html', data=data, headers=headers)
 
     # DB version:
-    db_data = data_manager.list_column('question')
+    db_data = db_data_manager.list_column('question')
     db_headers = db_data[0].keys()
     return render_template('list.html', data=db_data, headers=db_headers)
 
@@ -45,7 +45,7 @@ def question_display(question_id):
 
     # DB version:
 
-    question_to_display, headers, answers = data_manager.question_display(question_id, 'question')
+    question_to_display, headers, answers = db_data_manager.question_display(question_id, 'question')
 
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers)
 
@@ -54,13 +54,13 @@ def question_display(question_id):
 def question_edit(question_id):
     global QUESTIONS, ANSWERS
     if request.method == 'GET':
-        question_to_edit = data_manager.question_display(question_id, QUESTIONS, ANSWERS)[0]
+        question_to_edit = db_data_manager.question_display(question_id, 'question')[0]
 
         return render_template('question_edit.html', question=question_to_edit)
 
     elif request.method == 'POST':
         edited_question = dict(request.form)
-        data_manager.record_edit(QUESTIONS, question_id, list(edited_question.keys()), list(edited_question.values()))
+        db_data_manager.record_edit('question', question_id, tuple(edited_question.keys()), list(edited_question.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -68,54 +68,58 @@ def question_edit(question_id):
 @app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
 def answer_edit(answer_id):
     if request.method == 'GET':
-        answer_to_edit = data_manager.display_answer(answer_id)
+        answer_to_edit = db_data_manager.display_answer(answer_id)
 
         return render_template('answer_edit.html', answer=answer_to_edit)
 
     elif request.method == 'POST':
         edited_answer = dict(request.form)
-        question_id = int(data_manager.display_answer(answer_id)['question_id'])
-        data_manager.record_edit(ANSWERS, answer_id, list(edited_answer.keys()), list(edited_answer.values()))
+        question_id = int(db_data_manager.display_answer(answer_id)['question_id'])
+        db_data_manager.record_edit('answer', answer_id, list(edited_answer.keys()), list(edited_answer.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/delete', methods=['GET'])
 def question_delete(question_id):
-    global QUESTIONS
-    data_manager.record_delete(QUESTIONS, question_id)
+    # global QUESTIONS
+    # db_data_manager.record_delete('answer', )
+    db_data_manager.record_delete('question', question_id)
+
 
     return redirect(url_for('list_questions'))
 
 
 @app.route('/answer/<int:answer_id>/delete', methods=['GET'])
 def answer_delete(answer_id):
-    global ANSWERS
-    question_id = data_manager.record_delete(ANSWERS, answer_id)
+    # global ANSWERS
+    question_id = db_data_manager.record_delete('answer', answer_id)
 
     return redirect(url_for('question_display', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/vote_up', methods=['GET'])
 def question_voting_up(question_id):
-    global QUESTIONS
-    data_manager.voting_for_up_down(QUESTIONS, question_id, 'add')
+    # global QUESTIONS
+    # data_manager.voting_for_up_down(QUESTIONS, question_id, 'add')
 
+    db_data_manager.voting_for_up_down('question', question_id, 'up')
     return redirect(url_for('question_display', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/vote_down', methods=['GET'])
 def question_voting_down(question_id):
     global QUESTIONS
-    data_manager.voting_for_up_down(QUESTIONS, question_id, 'subtract')
+    # data_manager.voting_for_up_down(QUESTIONS, question_id, 'subtract')
 
+    db_data_manager.voting_for_up_down('question', question_id, 'down')
     return redirect(url_for('question_display', question_id=question_id))
 
 
 @app.route('/answer/<int:answer_id>/vote_up', methods=['GET'])
 def answer_voting_up(answer_id):
     global ANSWERS
-    question_id = data_manager.voting_for_up_down(ANSWERS, answer_id, 'add')
+    question_id = db_data_manager.voting_for_up_down('answer', answer_id, 'up')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -123,7 +127,7 @@ def answer_voting_up(answer_id):
 @app.route('/answer/<int:answer_id>/vote_down', methods=['GET'])
 def answer_voting_down(answer_id):
     global ANSWERS
-    question_id = data_manager.voting_for_up_down(ANSWERS, answer_id, 'subtract')
+    question_id = db_data_manager.voting_for_up_down('answer', answer_id, 'down')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -137,7 +141,7 @@ def add_question():
     elif request.method == 'POST':
         requested_data = dict(request.form)
         requested_image = request.files['image']
-        new_id = data_manager.add_question(requested_data, requested_image, 'question')
+        new_id = db_data_manager.add_question(requested_data, requested_image, 'question')
 
         return redirect(url_for("question_display", question_id=new_id))
 
@@ -150,7 +154,7 @@ def answer_question(question_id):
     elif request.method == 'POST':
         requested_data = dict(request.form)
         requested_image = request.files['image']
-        data_manager.answer_question(requested_data, requested_image, question_id)
+        db_data_manager.answer_question(requested_data, requested_image, 'answer', question_id)
 
         return redirect(url_for('question_display', question_id=question_id))
 
