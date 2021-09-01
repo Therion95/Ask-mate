@@ -20,7 +20,7 @@ COMMENTS_A = os.environ.get('COMMENTS_A')
 
 
 def list_questions(csv_file):
-    list_of_data = connection.csv_opening(csv_file)
+    list_of_data = csv_connection.csv_opening(csv_file)
 
     headers = list(list_of_data[0].keys())
 
@@ -28,18 +28,18 @@ def list_questions(csv_file):
 
 
 def get_headers(csv_file):
-    list_of_data = connection.csv_opening(csv_file)
+    list_of_data = csv_connection.csv_opening(csv_file)
 
     return list(list_of_data[0].keys())
 
 
 def question_display(question_id, questions_csv_file, answers_csv_file, comments_q_csv_file, comments_a_csv_file):
     questions, headers = list_questions(questions_csv_file)
-    answers = [answer for answer in connection.csv_opening(answers_csv_file)
+    answers = [answer for answer in csv_connection.csv_opening(answers_csv_file)
                if int(answer['question_id']) == question_id]
-    comments_q = [comment for comment in connection.csv_opening(comments_q_csv_file)
+    comments_q = [comment for comment in csv_connection.csv_opening(comments_q_csv_file)
                if int(comment['question_id']) == question_id]
-    comments_a = [comment for comment in connection.csv_opening(comments_a_csv_file)
+    comments_a = [comment for comment in csv_connection.csv_opening(comments_a_csv_file)
                if int(comment['question_id']) == question_id]
 
     for question in questions:
@@ -47,21 +47,21 @@ def question_display(question_id, questions_csv_file, answers_csv_file, comments
             return question, headers, answers, comments_q, comments_a
 
 def add_question(requested_data, requested_image):
-    path = connection.upload_file(requested_image, UPLOAD_FOLDER_Q)
+    path = csv_connection.upload_file(requested_image, UPLOAD_FOLDER_Q)
     keys = ['id', 'submission_time', 'title', 'message', 'view_number', 'vote_number', 'image']
     values = [util.get_next_id(QUESTIONS), util.current_date(), requested_data['title'], requested_data['message'], 0, 0, path]
     prepared_dict = {k: v for k, v in zip(keys, values)}
 
-    return connection.csv_appending(QUESTIONS, prepared_dict)
+    return csv_connection.csv_appending(QUESTIONS, prepared_dict)
 
 
 def answer_question(requested_data, requested_image, question_id):
-    path = connection.upload_file(requested_image)
+    path = csv_connection.upload_file(requested_image)
     keys = ['id', 'submission_time', 'message', 'vote_number', 'question_id', 'image']
     values = [util.get_next_id(ANSWERS), util.current_date(), requested_data['message'], 0, question_id, path]
     prepared_dict = {k: v for k, v in zip(keys, values)}
 
-    return connection.csv_appending(ANSWERS, prepared_dict)
+    return csv_connection.csv_appending(ANSWERS, prepared_dict)
 
 
 def comment_question(requested_data, question_id):
@@ -69,7 +69,7 @@ def comment_question(requested_data, question_id):
     values = [util.get_next_id(COMMENTS_Q), util.current_date(), requested_data['message'], question_id]
     prepared_dict = {k: v for k, v in zip(keys, values)}
 
-    return connection.csv_appending(COMMENTS_Q, prepared_dict)
+    return csv_connection.csv_appending(COMMENTS_Q, prepared_dict)
 
 
 def comment_answer(requested_data, answer_id, question_id):
@@ -77,11 +77,11 @@ def comment_answer(requested_data, answer_id, question_id):
     values = [util.get_next_id(COMMENTS_A), util.current_date(), requested_data['message'], answer_id, question_id]
     prepared_dict = {k: v for k, v in zip(keys, values)}
 
-    return connection.csv_appending(COMMENTS_A, prepared_dict)
+    return csv_connection.csv_appending(COMMENTS_A, prepared_dict)
 
 
 def display_answer(answer_id):
-    list_of_answers = connection.csv_opening(ANSWERS)
+    list_of_answers = csv_connection.csv_opening(ANSWERS)
     for answer in list_of_answers:
         if int(answer['id']) == int(answer_id):
             return answer
@@ -89,7 +89,7 @@ def display_answer(answer_id):
 
 def edit_answer(answer_id, edited_answer, new_image):
     if new_image.filename != '':
-        new_path = connection.upload_file(new_image, UPLOAD_FOLDER_A)
+        new_path = csv_connection.upload_file(new_image, UPLOAD_FOLDER_A)
         os.remove(display_answer(answer_id)['image'])
     else:
         new_path = display_answer(answer_id)['image']
@@ -97,12 +97,12 @@ def edit_answer(answer_id, edited_answer, new_image):
     keys = ['submission_time', 'message', 'image']
     values = [util.current_date(), edited_answer['message'], new_path]
 
-    return connection.csv_editing(ANSWERS, answer_id, keys, values)
+    return csv_connection.csv_editing(ANSWERS, answer_id, keys, values)
 
 
 def delete_image(answer_id):
     os.remove(display_answer(answer_id)['image'])
-    connection.csv_editing(ANSWERS, answer_id, ['image'], [""])
+    csv_connection.csv_editing(ANSWERS, answer_id, ['image'], [""])
 
 def voting_for_up_down(file, given_id, method):
     returned_id = csv_connection.csv_editing(file, given_id, method=method)
@@ -123,6 +123,27 @@ def record_delete(file, given_id):
 
 
 # DB version:
+@db_connection.executor
+def get_data_from_question(cursor):
+    query = """
+        SELECT id, submission_time, view_number, vote_number, title, message, image
+        FROM question
+        ORDER BY id"""
+
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@db_connection.executor
+def five_latest_questions(cursor, question):
+    query = """
+    SELECT *
+    FROM question    
+    ORDER BY id DESC
+    LIMIT 5;
+    """
+    cursor.execute(query, [question])
+    return cursor.fetchall()
+
 
 @db_connection.executor
 def list_column(cursor, db_table):
@@ -167,3 +188,42 @@ def add_question(cursor, requested_data, requested_image, db_table):
 
     # cursor.execute(sql.SQL(query).format(table=sql.Identifier(db_table)).as_string(cursor), (util.current_date(), '0', '0', requested_data['title'], requested_data['message'], path,))
     return dict(cursor.fetchone())['id']
+
+@db_connection.executor
+def get_new_id(cursor):
+    query = """
+        SELECT MAX(id)
+        AS max_id
+        FROM comment
+    """
+    cursor.execute(query)
+    return int(cursor.fetchone().get('max_id')) + 1
+
+@db_connection.executor
+def add_comment_to_question(cursor, requested_data, question_id):
+    new_values = (get_new_id(), util.current_date(), question_id, requested_data['message'], 0)
+    query = """
+        INSERT INTO comment (id, submission_time, question_id, message, edited_count)
+        VALUES (%s, %s, %s, %s, %s);
+        """
+    return cursor.execute(query, new_values)
+
+@db_connection.executor
+def add_comment_to_answer(cursor, requested_data, question_id, answer_id):
+    new_values = (get_new_id(), util.current_date(), question_id, answer_id, requested_data['message'], 0)
+    query = """
+        INSERT INTO comment (id, submission_time, question_id, answer_id, message, edited_count)
+        VALUES (%s, %s, %s, %s, %s, %s);
+        """
+    return cursor.execute(query, new_values)
+
+@db_connection.executor
+def delete_comment(cursor, id):
+    query = """
+        DELETE FROM comment
+        WHERE id = %s
+        RETURNING question_id;
+        """
+
+    cursor.execute(query, [id])
+    return dict(cursor.fetchone())['question_id']

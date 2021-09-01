@@ -18,6 +18,37 @@
         <li><a href={{ url_for('add_question') }}>Ask a question</a></li>
     </ul>
 
+<br><br><br>
 
+
+<p><h2>5 latest questions:</h2>
+<hr><br>
+<table>
+    <thead>
+          <tr>
+              {% for header in headers %}
+              <th>{{ header }}</th>
+              {% endfor %}
+          </tr>
+    </thead>
+    <tbody>
+        <tr>
+        {% for question in questions  %}
+            {% for key, value in question.items() %}
+                {% if key == 'image' %}
+                    {% if question[key] != None %}
+                        <td><img src="{{ question[key] }}" alt="Picture" style="width: 30%;" /></td>
+                    {% elif question[key] == None %}
+                        <td>no image</td>
+                    {% endif %}
+                {% else %}
+                    <td>{{ value }}</td>
+                {% endif %}
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
 
 {% endblock %}

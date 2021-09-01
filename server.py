@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
 
-import connection
+import csv_connection
 import data_manager
 import util
 
@@ -18,7 +18,10 @@ COMMENTS_A = os.environ.get('COMMENTS_A')
 
 @app.route("/")
 def index():
-    return render_template('index.html')
+    questions = data_manager.list_column('question')
+    latest_questions = data_manager.five_latest_questions(questions)
+    headers = questions[0].keys()
+    return render_template('index.html', headers=headers, questions=latest_questions)
 
 
 @app.route('/list', methods=['GET'])
@@ -49,7 +52,7 @@ def question_edit(question_id):
 
     elif request.method == 'POST':
         edited_question = dict(request.form)
-        connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
+        csv_connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
                                values_to_update=list(edited_question.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
@@ -74,7 +77,7 @@ def answer_edit(answer_id):
 @app.route('/question/<int:question_id>/delete', methods=['GET'])
 def question_delete(question_id):
     global QUESTIONS
-    connection.csv_delete_row(QUESTIONS, question_id)
+    csv_connection.csv_delete_row(QUESTIONS, question_id)
 
     return redirect(url_for('list_questions'))
 
@@ -82,7 +85,7 @@ def question_delete(question_id):
 @app.route('/answer/<int:answer_id>/delete', methods=['GET'])
 def answer_delete(answer_id):
     global ANSWERS
-    question_id = connection.csv_delete_row(ANSWERS, answer_id)
+    question_id = csv_connection.csv_delete_row(ANSWERS, answer_id)
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -96,7 +99,7 @@ def delete_image(answer_id):
 @app.route('/question/<int:question_id>/vote_up', methods=['GET'])
 def question_voting_up(question_id):
     global QUESTIONS
-    connection.csv_editing(QUESTIONS, question_id, method='add')
+    csv_connection.csv_editing(QUESTIONS, question_id, method='add')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -104,7 +107,7 @@ def question_voting_up(question_id):
 @app.route('/question/<int:question_id>/vote_down', methods=['GET'])
 def question_voting_down(question_id):
     global QUESTIONS
-    connection.csv_editing(QUESTIONS, question_id, method='subtract')
+    csv_connection.csv_editing(QUESTIONS, question_id, method='subtract')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -112,7 +115,7 @@ def question_voting_down(question_id):
 @app.route('/answer/<int:answer_id>/vote_up', methods=['GET'])
 def answer_voting_up(answer_id):
     global ANSWERS
-    question_id = connection.csv_editing(ANSWERS, answer_id, method='add')
+    question_id = csv_connection.csv_editing(ANSWERS, answer_id, method='add')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -120,7 +123,7 @@ def answer_voting_up(answer_id):
 @app.route('/answer/<int:answer_id>/vote_down', methods=['GET'])
 def answer_voting_down(answer_id):
     global ANSWERS
-    question_id = connection.csv_editing(ANSWERS, answer_id, method='subtract')
+    question_id = csv_connection.csv_editing(ANSWERS, answer_id, method='subtract')
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -158,7 +161,7 @@ def add_comment_to_question(question_id):
         return render_template('comment_question.html',  question_id=question_id)
     elif request.method == 'POST':
         requested_data = dict(request.form)
-        data_manager.comment_question(requested_data, question_id)
+        data_manager.add_comment_to_question(requested_data, question_id)
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -169,9 +172,15 @@ def add_comment_to_answer(question_id, answer_id):
         return render_template('comment_answer.html',  answer_id=answer_id, question_id=question_id)
     elif request.method == 'POST':
         requested_data = dict(request.form)
-        data_manager.comment_answer(requested_data, answer_id, question_id)
+        data_manager.add_comment_to_answer(requested_data, answer_id, question_id)
 
         return redirect(url_for('question_display', answer_id=answer_id, question_id=question_id))
+
+
+@app.route('/comments/<int:id>/delete', methods=['GET'])
+def delete_comment(id):
+    question_id = data_manager.delete_comment(id)
+    return redirect(url_for('question_display', question_id=question_id))
 
 
 if __name__ == "__main__":

@@ -34,7 +34,9 @@
     <br>
     <h3><i>Comments to question {{ question['id'] }}:</i></h3>
     {% for comment in comments %}
-        <b>{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}<br><br>
+        <b>{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
+        <a href={{ url_for('delete_comment') }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" title="Delete"/></a>
+        <br><br>
     {% endfor %}
     <br>
     <hr><br>
@@ -50,7 +52,9 @@
            {% for comment in comments_a %}
                <h3><i>Comments to answer:</i></h3>
                {% if answer['id'] == comment['answer_id'] %}
-           <b>{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}<br><br>
+                   <b>{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
+                   <a href={{ url_for('delete_comment') }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" title="Delete"/></a>
+                   <br><br>
                {% endif %}
            {% endfor %}
            <br><br>
