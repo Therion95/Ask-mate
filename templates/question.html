@@ -17,6 +17,12 @@
         <br><p><h3><i>{{ headers[6] }}:</i></h3>
         <img src="/{{ question['image'] }}" alt="Picture" style="width: 30%;" />
     {% endif %}
+    <br><br>
+    <p><h3><i>tags:</i></h3>
+    {% for tag in tags %}
+        <b>#{{ tag['name'] }} &nbsp;&nbsp;&nbsp;&nbsp;</b>
+    {% endfor %}
+    <a href={{ url_for('new_tag', question_id=question['id']) }}><img src="/static/images/plus.png" alt="Plus" width="10" title="Add new tag"/></a>
     <br>
     <br>
     <h5>Actions:</h5><hr>
