@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for
 
 import csv_connection
+import csv_data_manager
 import db_data_manager
 import util
 
@@ -34,10 +35,11 @@ def list_questions():
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
-    question_to_display, headers, answers, comments, comments_a = data_manager.question_display(question_id, QUESTIONS,
-                                                                                                ANSWERS, COMMENTS_Q,
-                                                                                                COMMENTS_A)
-    question_to_display, headers, answers = db_data_manager.question_display(question_id, 'question')
+    question_to_display, headers, answers, comments, comments_a = csv_data_manager.question_display(question_id,
+                                                                                                    QUESTIONS, ANSWERS,
+                                                                                                    COMMENTS_Q,
+                                                                                                    COMMENTS_A)
+    #question_to_display, headers, answers = db_data_manager.question_display(question_id, 'question')
 
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
                            comments=comments, comments_a=comments_a, tags=tags)
@@ -47,7 +49,7 @@ def question_display(question_id):
 def question_edit(question_id):
     global QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A
     if request.method == 'GET':
-        question_to_edit = data_manager.question_display(question_id, QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A)[0]
+        question_to_edit = csv_data_manager.question_display(question_id, QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A)[0]
         # question_to_edit = db_data_manager.question_display(question_id, 'question')[0]
 
         return render_template('question_edit.html', question=question_to_edit)
@@ -55,8 +57,9 @@ def question_edit(question_id):
     elif request.method == 'POST':
         edited_question = dict(request.form)
         csv_connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
-                               values_to_update=list(edited_question.values()))
-        # db_data_manager.record_edit('question', question_id, tuple(edited_question.keys()), list(edited_question.values()))
+                                   values_to_update=list(edited_question.values()))
+        # db_data_manager.record_edit('question', question_id, tuple(edited_question.keys()),
+        # list(edited_question.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -64,22 +67,21 @@ def question_edit(question_id):
 @app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
 def answer_edit(answer_id):
     if request.method == 'GET':
-        answer_to_edit = db_data_manager.display_answer(answer_id)
+        answer_to_edit = db_data_manager.answer_display(answer_id)
 
         return render_template('answer_edit.html', answer=answer_to_edit)
-# ASIA:
-#     elif request.method == 'POST':
-#         edited_answer = dict(request.form)
-#         new_image = request.files['image']
-#         data_manager.edit_answer(answer_id, edited_answer, new_image)
-#         question_id = int(data_manager.display_answer(answer_id)['question_id'])
-#
-#         return redirect(url_for('question_display', question_id=question_id))
-
+    # ASIA:
+    #     elif request.method == 'POST':
+    #         edited_answer = dict(request.form)
+    #         new_image = request.files['image']
+    #         data_manager.edit_answer(answer_id, edited_answer, new_image)
+    #         question_id = int(data_manager.display_answer(answer_id)['question_id'])
+    #
+    #         return redirect(url_for('question_display', question_id=question_id))
 
     elif request.method == 'POST':
         edited_answer = dict(request.form)
-        question_id = int(db_data_manager.display_answer(answer_id)['question_id'])
+        question_id = int(db_data_manager.answer_display(answer_id)['question_id'])
         db_data_manager.record_edit('answer', answer_id, list(edited_answer.keys()), list(edited_answer.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
@@ -90,7 +92,6 @@ def question_delete(question_id):
     # global QUESTIONS
     # db_data_manager.record_delete('answer', )
     db_data_manager.record_delete('question', question_id)
-
 
     return redirect(url_for('list_questions'))
 
@@ -105,7 +106,7 @@ def answer_delete(answer_id):
 
 @app.route('/answer/<int:answer_id>/delete-image', methods=['GET'])
 def delete_image(answer_id):
-    data_manager.delete_image(answer_id)
+    csv_data_manager.delete_image(answer_id)
     return redirect(url_for('answer_edit', answer_id=answer_id))
 
 
@@ -165,7 +166,7 @@ def answer_question(question_id):
     elif request.method == 'POST':
         requested_data = dict(request.form)
         requested_image = request.files['image']
-        data_manager.answer_question(requested_data, requested_image, question_id)
+        db_data_manager.answer_question(requested_data, requested_image, question_id)
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -173,10 +174,10 @@ def answer_question(question_id):
 @app.route('/question/<int:question_id>/new_comment', methods=['GET', 'POST'])
 def add_comment_to_question(question_id):
     if request.method == 'GET':
-        return render_template('comment_question.html',  question_id=question_id)
+        return render_template('comment_question.html', question_id=question_id)
     elif request.method == 'POST':
         requested_data = dict(request.form)
-        data_manager.add_comment_to_question(requested_data, question_id)
+        db_data_manager.add_comment_to_question(requested_data, question_id)
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -184,31 +185,31 @@ def add_comment_to_question(question_id):
 @app.route('/question/<int:question_id>/<int:answer_id>/new_comment', methods=['GET', 'POST'])
 def add_comment_to_answer(question_id, answer_id):
     if request.method == 'GET':
-        return render_template('comment_answer.html',  answer_id=answer_id, question_id=question_id)
+        return render_template('comment_answer.html', answer_id=answer_id, question_id=question_id)
     elif request.method == 'POST':
         requested_data = dict(request.form)
-        data_manager.add_comment_to_answer(requested_data, answer_id, question_id)
+        db_data_manager.add_comment_to_answer(requested_data, answer_id, question_id)
 
         return redirect(url_for('question_display', answer_id=answer_id, question_id=question_id))
 
 
 @app.route('/comments/<int:id>/delete', methods=['GET'])
 def delete_comment(id):
-    question_id = data_manager.delete_comment(id)
+    question_id = db_data_manager.delete_comment(id)
     return redirect(url_for('question_display', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/new-tag', methods=['GET', 'POST'])
 def new_tag(question_id):
     if request.method == 'GET':
-        all_tags = data_manager.get_tags()
-        tags_for_id = data_manager.get_tag_names_by_question_id(question_id)
+        all_tags = db_data_manager.get_tags()
+        tags_for_id = db_data_manager.get_tag_names_by_question_id(question_id)
 
         return render_template('new_tag.html', question_id=question_id, all_tags=all_tags, tags=tags_for_id)
 
     elif request.method == 'POST':
         tags = request.form.getlist('tag')
-        data_manager.insert_updated_tags(question_id, tags)
+        db_data_manager.insert_updated_tags(question_id, tags)
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -216,7 +217,7 @@ def new_tag(question_id):
 @app.route('/question/<int:question_id>/define-new-tag', methods=['POST'])
 def define_new_tag(question_id):
     tag = dict(request.form)
-    data_manager.add_tag(tag['new_tag'])
+    db_data_manager.add_tag(tag['new_tag'])
 
     return redirect(url_for('new_tag', question_id=question_id))
 
