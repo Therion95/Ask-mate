@@ -17,15 +17,9 @@
     <form action="{{ url_for('new_tag', question_id=question_id) }}" method="post">
         <fieldset>
             <legend>Choose tags:</legend>
-            {% for tag in all_tags %}
-                <input type="checkbox" name="tag" id="{{ tag['name'] }}" value="{{ tag['name'] }}"
-                {% for tag_id in tags %}
-                    {% if tag_id['name'] == tag['name'] %}
-                        checked
-                    {% endif %}
-                {% endfor %}
-                >
-                <label for="{{ tag['name'] }}">{{ tag['name'] }}</label><br>
+            {% for tag in tags %}
+                <input type="checkbox" name="tag" id="{{ tag }}" value="{{ tag }}">
+                <label for="{{ tag }}">{{ tag }}</label><br>
             {% endfor %}
         </fieldset>
         <br><br>

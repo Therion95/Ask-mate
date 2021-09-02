@@ -129,7 +129,7 @@ def get_tag_names_by_question_id(cursor, question_id):
     # todo: unprepared for query_builder
 
     query = """
-        SELECT name
+        SELECT name, id
         FROM tag
         RIGHT JOIN question_tag
         ON tag.id = question_tag.tag_id
@@ -145,13 +145,19 @@ def get_tags(cursor):
     # todo: unprepared for query_builder
 
     query = """
-        SELECT name
+        SELECT name, id
         FROM tag
         ORDER BY id ASC 
     """
     cursor.execute(query)
 
     return cursor.fetchall()
+
+
+def get_tags_to_choose(question_id):
+    all_tags = [tag['name'] for tag in get_tags()]
+    tags_for_id = [tag['name'] for tag in get_tag_names_by_question_id(question_id)]
+    return [tag for tag in all_tags if tag not in tags_for_id]
 
 
 @db_connection.executor
@@ -208,6 +214,16 @@ def insert_updated_tags(cursor, question_id, new_tags):
                 VALUES (%s, %s)
             """
             cursor.execute(query, [question_id, selected_id['id']])
+
+
+@db_connection.executor
+def delete_tag(cursor, question_id, tag_id):
+    query = """
+        DELETE FROM question_tag
+        WHERE question_id = %s
+        AND tag_id = %s
+        """
+    cursor.execute(query, [question_id, tag_id])
 
 
 @db_connection.executor

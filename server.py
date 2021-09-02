@@ -202,10 +202,9 @@ def delete_comment(id):
 @app.route('/question/<int:question_id>/new-tag', methods=['GET', 'POST'])
 def new_tag(question_id):
     if request.method == 'GET':
-        all_tags = db_data_manager.get_tags()
-        tags_for_id = db_data_manager.get_tag_names_by_question_id(question_id)
+        tags = db_data_manager.get_tags_to_choose(question_id)
 
-        return render_template('new_tag.html', question_id=question_id, all_tags=all_tags, tags=tags_for_id)
+        return render_template('new_tag.html', question_id=question_id, tags=tags)
 
     elif request.method == 'POST':
         tags = request.form.getlist('tag')
@@ -220,6 +219,13 @@ def define_new_tag(question_id):
     db_data_manager.add_tag(tag['new_tag'])
 
     return redirect(url_for('new_tag', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/tag/<int:tag_id>/delete', methods=['GET'])
+def delete_tag(question_id, tag_id):
+    db_data_manager.delete_tag(question_id, tag_id)
+
+    return redirect(url_for('question_display', question_id=question_id))
 
 
 if __name__ == "__main__":
