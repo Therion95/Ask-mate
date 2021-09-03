@@ -295,3 +295,14 @@ def searching(cursor, word):
     cursor.execute(query, [f"%{word}%", f"%{word}%", f"%{word}%"])
     return cursor.fetchall()
 
+@db_connection.executor
+def sorting_questions(cursor, header, sort):
+    query = f"""
+        SELECT *
+        FROM question
+        ORDER BY {header} {sort}
+    """
+
+    cursor.execute(query)
+    return cursor.fetchall()
+

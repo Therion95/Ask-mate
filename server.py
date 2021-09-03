@@ -19,14 +19,21 @@ def index():
     questions = db_data_manager.list_column('question')
     latest_questions = db_data_manager.five_latest_questions(questions)
     headers = questions[0].keys()
+    list_of_headers = list(headers)
     return render_template('index.html', headers=headers, questions=latest_questions)
 
 
-@app.route('/list', methods=['GET'])
+@app.route('/list', methods=['GET', 'POST'])
 def list_questions():
-    db_data = db_data_manager.list_column('question')
-    db_headers = db_data[0].keys()
-    return render_template('list.html', data=db_data, headers=db_headers)
+    if request.method == 'GET':
+        db_data = db_data_manager.list_column('question')
+        db_headers = db_data[0].keys()
+        return render_template('list.html', data=db_data, headers=db_headers, list_of_headers=list(db_headers))
+    elif request.method == 'POST':
+        order_by, order_direction = dict(request.form)['header'], dict(request.form)['sort']
+        db_data = db_data_manager.sorting_questions(order_by, order_direction)
+        db_headers = db_data[0].keys()
+        return render_template('list.html', data=db_data, headers=db_headers, list_of_headers=list(db_headers))
 
 
 @app.route('/question/<int:question_id>', methods=['GET'])
