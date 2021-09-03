@@ -228,5 +228,15 @@ def delete_tag(question_id, tag_id):
     return redirect(url_for('question_display', question_id=question_id))
 
 
+@app.route('/search', methods=['GET', 'POST'])
+def search_results():
+    if request.method == 'POST':
+        word = dict(request.form)['search']
+        data = db_data_manager.searching(word)
+        headers = data[0].keys()
+
+        return render_template('search_results.html', data=data, headers=headers)
+
+
 if __name__ == "__main__":
     app.run()

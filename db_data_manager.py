@@ -277,3 +277,19 @@ def delete_comment(cursor, id):
 
     cursor.execute(query, [id])
     return dict(cursor.fetchone())['question_id']
+
+
+@db_connection.executor
+def searching(cursor, word):
+    query = """
+        SELECT question.*
+        FROM question
+        LEFT JOIN answer
+        ON question.id = answer.question_id
+        WHERE title LIKE %s
+        OR question.message LIKE %s
+        OR answer.message LIKE %s
+    """
+    cursor.execute(query, [f"%{word}%", f"%{word}%", f"%{word}%"])
+    return cursor.fetchall()
+

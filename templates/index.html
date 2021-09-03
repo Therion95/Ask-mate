@@ -8,7 +8,14 @@
 
 
 {% block body %}
-
+    <br>
+    <form action="{{ url_for('search_results') }}" method="post" class="example" style="margin:auto;max-width:400px" >
+        <label for="search">
+            <input type="text" placeholder="Search.." name="search" id="search">
+        </label>
+        <button type="submit"><i class="fa fa-search"></i></button>
+    </form>
+    <br>
     <h3>Get involved and contribute in helping those who need it!</h3>
 
     <h4><i>Ask-Mate</i> is a simple questions-answers website. You can find answers to various questions from different categories on Ask-Mate!
