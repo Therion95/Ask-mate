@@ -24,7 +24,7 @@ def query_builder(query_type, db_table, selector=None, col_to_update=None, updat
     if query_type == "SELECT":
         if condition:
             query = f"""{parts[0]['selecting']} {selector} {parts[0]['from']} {db_table} 
-            {parts[0]['where_con']} {condition};"""
+            {parts[2]['where_con']} {condition};"""
         else:
             query = f"{parts[0]['selecting']} {selector} {parts[0]['from']} {db_table};"
 
@@ -45,16 +45,14 @@ def query_builder(query_type, db_table, selector=None, col_to_update=None, updat
             query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} {col_to_update} = {col_to_update} {update} 
             {parts[2]['where_con']} {condition};"""
 
-            f'''UPDATE nazwa kolumny SET vote_number = vote_number - 1 WHERE id = 6'''
-
         return query
 
     if query_type == "EDITING":
         if db_table == 'answer':
-            query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} {cols_to_update} = ({', '.join(len(cols_to_update) * parts[3]['string_con'])})
+            query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} {', '.join(cols_to_update)} = {', '.join(len(cols_to_update) * parts[3]['string_con'])}
             {parts[2]['where_con']} {condition} {parts[0]['ret']} question_id;"""
         else:
-            query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} {cols_to_update} = ({', '.join(len(cols_to_update) * parts[3]['string_con'])}) 
+            query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} ({', '.join(cols_to_update)}) = ({', '.join(len(cols_to_update) * parts[3]['string_con'])}) 
             {parts[2]['where_con']} {condition};"""
 
         return query

@@ -1,10 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
 
-import csv_connection
-import csv_data_manager
 import db_data_manager
-import util
 
 app = Flask(__name__)
 # GLOBAL directory for the app config
@@ -35,11 +32,7 @@ def list_questions():
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
-    question_to_display, headers, answers, comments, comments_a = csv_data_manager.question_display(question_id,
-                                                                                                    QUESTIONS, ANSWERS,
-                                                                                                    COMMENTS_Q,
-                                                                                                    COMMENTS_A)
-    #question_to_display, headers, answers = db_data_manager.question_display(question_id, 'question')
+    question_to_display, headers, answers, comments, comments_a = db_data_manager.question_display(question_id, 'question')
 
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
                            comments=comments, comments_a=comments_a, tags=tags)
@@ -47,19 +40,19 @@ def question_display(question_id):
 
 @app.route('/question/<int:question_id>/edit', methods=['GET', 'POST'])
 def question_edit(question_id):
-    global QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A
+    # global QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A
     if request.method == 'GET':
-        question_to_edit = csv_data_manager.question_display(question_id, QUESTIONS, ANSWERS, COMMENTS_Q, COMMENTS_A)[0]
+        question_to_edit = db_data_manager.question_display(question_id, 'question')[0]
         # question_to_edit = db_data_manager.question_display(question_id, 'question')[0]
 
         return render_template('question_edit.html', question=question_to_edit)
 
     elif request.method == 'POST':
         edited_question = dict(request.form)
-        csv_connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
-                                   values_to_update=list(edited_question.values()))
-        # db_data_manager.record_edit('question', question_id, tuple(edited_question.keys()),
-        # list(edited_question.values()))
+        # csv_connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
+        #                        values_to_update=list(edited_question.values()))
+
+        db_data_manager.record_edit('question', question_id, tuple(edited_question.keys()), list(edited_question.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -67,22 +60,23 @@ def question_edit(question_id):
 @app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
 def answer_edit(answer_id):
     if request.method == 'GET':
-        answer_to_edit = db_data_manager.answer_display(answer_id)
+        answer_to_edit = db_data_manager.answer_to_edit(answer_id)
 
         return render_template('answer_edit.html', answer=answer_to_edit)
-    # ASIA:
-    #     elif request.method == 'POST':
-    #         edited_answer = dict(request.form)
-    #         new_image = request.files['image']
-    #         data_manager.edit_answer(answer_id, edited_answer, new_image)
-    #         question_id = int(data_manager.display_answer(answer_id)['question_id'])
-    #
-    #         return redirect(url_for('question_display', question_id=question_id))
+# ASIA:
+#     elif request.method == 'POST':
+#         edited_answer = dict(request.form)
+#         new_image = request.files['image']
+#         data_manager.edit_answer(answer_id, edited_answer, new_image)
+#         question_id = int(data_manager.display_answer(answer_id)['question_id'])
+#
+#         return redirect(url_for('question_display', question_id=question_id))
+
 
     elif request.method == 'POST':
         edited_answer = dict(request.form)
-        question_id = int(db_data_manager.answer_display(answer_id)['question_id'])
-        db_data_manager.record_edit('answer', answer_id, list(edited_answer.keys()), list(edited_answer.values()))
+        # question_id = int(db_data_manager.display_answer(answer_id)['question_id'])
+        question_id = db_data_manager.record_edit('answer', answer_id, list(edited_answer.keys()), list(edited_answer.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -106,7 +100,8 @@ def answer_delete(answer_id):
 
 @app.route('/answer/<int:answer_id>/delete-image', methods=['GET'])
 def delete_image(answer_id):
-    csv_data_manager.delete_image(answer_id)
+    db_data_manager.delete_image(answer_id)
+    # csv_data_manager.delete_image(answer_id)
     return redirect(url_for('answer_edit', answer_id=answer_id))
 
 
@@ -193,9 +188,10 @@ def add_comment_to_answer(question_id, answer_id):
         return redirect(url_for('question_display', answer_id=answer_id, question_id=question_id))
 
 
-@app.route('/comments/<int:id>/delete', methods=['GET'])
-def delete_comment(id):
-    question_id = db_data_manager.delete_comment(id)
+@app.route('/comments/<int:given_id>/delete', methods=['GET'])
+def delete_comment(given_id):
+    # question_id = db_data_manager.delete_comment(id)
+    question_id = db_data_manager.record_delete('comment', given_id)
     return redirect(url_for('question_display', question_id=question_id))
 
 

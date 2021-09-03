@@ -1,22 +1,8 @@
 import os
 
-import psycopg2
-import psycopg2.extras
-from psycopg2 import sql
-
-import csv_connection
 import db_connection
 import files_connection
 import util
-
-# GLOBAL directory for the app config
-UPLOAD_FOLDER_A = os.environ.get('UPLOAD_FOLDER_A')
-UPLOAD_FOLDER_Q = os.environ.get('UPLOAD_FOLDER_Q')
-# GLOBAL directories to our CSV files:
-QUESTIONS = os.environ.get('QUESTIONS_PATH')
-ANSWERS = os.environ.get('ANSWERS_PATH')
-COMMENTS_Q = os.environ.get('COMMENTS_Q')
-COMMENTS_A = os.environ.get('COMMENTS_A')
 
 
 @db_connection.executor
@@ -32,23 +18,39 @@ def get_headers(cursor, db_table):
     return list(list_column(db_table)[0].keys())
 
 
-def question_display(question_id, db_table):
+@db_connection.executor
+def question_display(cursor, question_id, db_table):
     db_data, headers = list_column(db_table), get_headers(db_table)
-    answers = [answer for answer in list_column('answer')
-               if int(answer['question_id']) == question_id]
 
     for question in db_data:
         if int(question['id']) == question_id:
-            return question, headers, answers
+            answers = [answer for answer in list_column('answer')
+                       if int(answer['question_id']) == question_id]
+            question_comments = None
+            comments_to_answers = {}
+
+            cursor.execute(util.query_builder('SELECT', 'comment', '*', condition=f'question_id = {question_id}'))
+            q_temp = cursor.fetchall()
+            if q_temp:
+                question_comments = [dict(row) for row in q_temp]
+
+            if answers:
+                answer_ids = [k['id'] for k in answers]
+
+                for answer_id in answer_ids:
+                    cursor.execute(util.query_builder('SELECT', 'comment', '*', condition=f'answer_id = {answer_id}'))
+                    a_temp = cursor.fetchone()
+                    if a_temp:
+                        comments_to_answers[answer_id] = dict(a_temp)
+            return question, headers, answers, question_comments, comments_to_answers
 
 
 @db_connection.executor
-def answer_display(answer_id):
-    # todo: unprepared for sql
-    list_of_answers = csv_connection.csv_opening(ANSWERS)
-    for answer in list_of_answers:
-        if int(answer['id']) == int(answer_id):
-            return answer
+def answer_to_edit(cursor, answer_id):
+    query = util.query_builder('SELECT', 'answer', selector='*', condition=f'id={answer_id}')
+    cursor.execute(query)
+
+    return dict(cursor.fetchone())
 
 
 @db_connection.executor
@@ -93,11 +95,11 @@ def voting_for_up_down(cursor, db_table, given_id, up_or_down):
 
 @db_connection.executor
 def record_edit(cursor, db_table, given_id, columns, values):
-    # csv_connection.csv_editing(file, given_id, keys=keys, values_to_update=values)
-    # todo: unprepared for sql
-
     query = util.query_builder('EDITING', db_table, given_id, cols_to_update=columns, condition=f'id = {given_id}')
     cursor.execute(query, values)
+
+    if db_table == 'answer' or db_table == 'comment':
+        return dict(cursor.fetchone())['question_id']
 
 
 @db_connection.executor
@@ -105,7 +107,7 @@ def record_delete(cursor, db_table, given_id):
     query = util.query_builder('DELETE', db_table, condition=f'id = {given_id}')
     cursor.execute(query)
 
-    if db_table == 'answer':
+    if db_table == 'answer' or db_table == 'comment':
         return dict(cursor.fetchone())['question_id']
 
 
@@ -147,7 +149,7 @@ def get_tags(cursor):
     query = """
         SELECT name, id
         FROM tag
-        ORDER BY id ASC 
+        ORDER BY id ASC
     """
     cursor.execute(query)
 
