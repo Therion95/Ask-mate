@@ -32,7 +32,8 @@ def list_questions():
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
-    question_to_display, headers, answers, comments, comments_a = db_data_manager.question_display(question_id, 'question')
+    question_to_display, headers, answers, comments, comments_a = db_data_manager.question_display(question_id,
+                                                                                                   'question')
 
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
                            comments=comments, comments_a=comments_a, tags=tags)
@@ -52,7 +53,8 @@ def question_edit(question_id):
         # csv_connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
         #                        values_to_update=list(edited_question.values()))
 
-        db_data_manager.record_edit('question', question_id, tuple(edited_question.keys()), list(edited_question.values()))
+        db_data_manager.record_edit('question', question_id, tuple(edited_question.keys()),
+                                    list(edited_question.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -63,20 +65,20 @@ def answer_edit(answer_id):
         answer_to_edit = db_data_manager.answer_to_edit(answer_id)
 
         return render_template('answer_edit.html', answer=answer_to_edit)
-# ASIA:
-#     elif request.method == 'POST':
-#         edited_answer = dict(request.form)
-#         new_image = request.files['image']
-#         data_manager.edit_answer(answer_id, edited_answer, new_image)
-#         question_id = int(data_manager.display_answer(answer_id)['question_id'])
-#
-#         return redirect(url_for('question_display', question_id=question_id))
-
+    # ASIA:
+    #     elif request.method == 'POST':
+    #         edited_answer = dict(request.form)
+    #         new_image = request.files['image']
+    #         data_manager.edit_answer(answer_id, edited_answer, new_image)
+    #         question_id = int(data_manager.display_answer(answer_id)['question_id'])
+    #
+    #         return redirect(url_for('question_display', question_id=question_id))
 
     elif request.method == 'POST':
         edited_answer = dict(request.form)
         # question_id = int(db_data_manager.display_answer(answer_id)['question_id'])
-        question_id = db_data_manager.record_edit('answer', answer_id, list(edited_answer.keys()), list(edited_answer.values()))
+        question_id = db_data_manager.record_edit('answer', answer_id, list(edited_answer.keys()),
+                                                  list(edited_answer.values()))
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -229,9 +231,11 @@ def search_results():
     if request.method == 'POST':
         word = dict(request.form)['search']
         data = db_data_manager.searching(word)
-        headers = data[0].keys()
-
-        return render_template('search_results.html', data=data, headers=headers)
+        if data:
+            headers = data[0].keys()
+            return render_template('search_results.html', data=data, headers=headers)
+        else:
+            return redirect(url_for('index'))
 
 
 if __name__ == "__main__":
