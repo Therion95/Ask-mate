@@ -7,13 +7,31 @@
 
 {% block body %}
 <p><h2>Questions list:</h2>
-<hr><br>
+<hr><br><br>
+<form action="{{ url_for("list_questions") }}" method="POST">
+    <label for="header">Header</label>
+    <select name="header" id="header">
+        {% for header in list_of_headers[1:6] %}
+            <option>{{ header }}</option>
+        {% endfor %}
+    </select>
+    <label for="sort">Sorting by</label>
+    <select name="sort" id="sort">
+        <option>DESC</option>
+        <option>ASC</option>
+    </select>
+    <button type="submit">Send</button>
+</form>
+    <br><br>
 <table>
-  <tr>
+  <thead>
+    <tr>
       {% for header in headers %}
       <th>{{ header }}</th>
       {% endfor %}
-  </tr>
+    </tr>
+  </thead>
+  <tbody>
     <tr>
     {% for dict in data  %}
         {% for key, value in dict.items() %}
@@ -31,7 +49,7 @@
     {% endfor %}
         </tr>
     {% endfor %}
-
+  <tbody>
 </table>
 
 {% endblock %}
