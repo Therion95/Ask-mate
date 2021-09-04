@@ -4,10 +4,14 @@ import db_connection
 import files_connection
 import util
 
+# GLOBAL directory for the app config
+UPLOAD_FOLDER_A = os.environ.get('UPLOAD_FOLDER_A')
+UPLOAD_FOLDER_Q = os.environ.get('UPLOAD_FOLDER_Q')
+
 
 @db_connection.executor
 def list_column(cursor, db_table):
-    query = util.query_builder('SELECT', db_table, '*')
+    query = util.query_builder('SELECT', db_table, '*', order='id')
     cursor.execute(query)
 
     return [dict(row) for row in cursor.fetchall()]
@@ -46,8 +50,8 @@ def question_display(cursor, question_id, db_table):
 
 
 @db_connection.executor
-def answer_to_edit(cursor, answer_id):
-    query = util.query_builder('SELECT', 'answer', selector='*', condition=f'id={answer_id}')
+def record_to_edit(cursor, given_id):
+    query = util.query_builder('SELECT', 'answer', selector='*', condition=f'id={given_id}')
     cursor.execute(query)
 
     return dict(cursor.fetchone())
@@ -55,7 +59,7 @@ def answer_to_edit(cursor, answer_id):
 
 @db_connection.executor
 def add_question(cursor, requested_data, requested_image, db_table):
-    path = files_connection.upload_file(requested_image)
+    path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_Q)
     if path:
         values = [str(v) for v in [util.current_date(), '0', '0', requested_data['title'], requested_data['message'], path]]
     else:
@@ -70,7 +74,7 @@ def add_question(cursor, requested_data, requested_image, db_table):
 
 @db_connection.executor
 def answer_question(cursor, requested_data, requested_image, db_table, question_id):
-    path = files_connection.upload_file(requested_image)
+    path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_A)
     if path:
         values = [str(v) for v in
                   [util.current_date(), 0, question_id, requested_data['message'], path]]
@@ -94,7 +98,14 @@ def voting_for_up_down(cursor, db_table, given_id, up_or_down):
 
 
 @db_connection.executor
-def record_edit(cursor, db_table, given_id, columns, values):
+def record_edit(cursor, db_table, given_id, columns, values, given_file=None, given_folder=None):
+    if given_file:
+        if db_table == 'question':
+            path = files_connection.upload_file(given_file, UPLOAD_FOLDER_Q)
+        if db_table == 'answer':
+            path = files_connection.upload_file(given_file, UPLOAD_FOLDER_A)
+        columns.append('image')
+        values.append(path)
     query = util.query_builder('EDITING', db_table, given_id, cols_to_update=columns, condition=f'id = {given_id}')
     cursor.execute(query, values)
 
@@ -246,22 +257,22 @@ def get_new_id(cursor):
 def add_comment_to_question(cursor, requested_data, question_id):
     # todo: unprepared for query_builder
 
-    new_values = (get_new_id(), util.current_date(), question_id, requested_data['message'], 0)
+    new_values = (util.current_date(), question_id, requested_data['message'], 0)
     query = """
-        INSERT INTO comment (id, submission_time, question_id, message, edited_count)
-        VALUES (%s, %s, %s, %s, %s);
+        INSERT INTO comment (submission_time, question_id, message, edited_count)
+        VALUES (%s, %s, %s, %s);
         """
     return cursor.execute(query, new_values)
 
 
 @db_connection.executor
-def add_comment_to_answer(cursor, requested_data, question_id, answer_id):
+def add_comment_to_answer(cursor, requested_data, answer_id):
     # todo: unprepared for query_builder
 
-    new_values = (get_new_id(), util.current_date(), question_id, answer_id, requested_data['message'], 0)
+    new_values = (util.current_date(), answer_id, requested_data['message'], 0)
     query = """
-        INSERT INTO comment (id, submission_time, question_id, answer_id, message, edited_count)
-        VALUES (%s, %s, %s, %s, %s, %s);
+        INSERT INTO comment (submission_time, answer_id, message, edited_count)
+        VALUES (%s, %s, %s, %s);
         """
     return cursor.execute(query, new_values)
 
@@ -295,3 +306,9 @@ def searching(cursor, word):
     cursor.execute(query, [f"%{word}%", f"%{word}%", f"%{word}%"])
     return cursor.fetchall()
 
+
+@db_connection.executor
+def delete_image(cursor, given_id, db_table):
+    cursor.execute(f'SELECT image FROM {db_table} WHERE id = {given_id}')
+    files_connection.delete_image(dict(cursor.fetchone())['image'])
+    cursor.execute(f"UPDATE {db_table} SET image = '' WHERE id = {given_id} RETURNING image")

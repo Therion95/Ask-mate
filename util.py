@@ -12,19 +12,22 @@ def current_date():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-def query_builder(query_type, db_table, selector=None, col_to_update=None, update=None, condition=None,
+def query_builder(query_type, db_table, selector=None, col_to_update=None, update=None, condition=None, order=None,
                   cols_to_update=None):
     parts = [{'selecting': "SELECT", 'from': "FROM", 'updating': "UPDATE", 'inserting': "INSERT INTO", 'deleting': "DELETE",
                     'values': "VALUES", 'set': "SET", 'ret': "RETURNING"},
                    {'answers': "answer", 'questions': "question", 'comments': "comment", 'question_tags':
                        "question_tag", 'tags': "tag"},
-                   {'where_con': "WHERE", 'like_con': "LIKE"},
+                   {'where_con': "WHERE", 'like_con': "LIKE", 'order': "ORDER BY"},
                    {'add': "+", 'subtract': "-", 'string_con': ['%s']}]
 
     if query_type == "SELECT":
         if condition:
             query = f"""{parts[0]['selecting']} {selector} {parts[0]['from']} {db_table} 
             {parts[2]['where_con']} {condition};"""
+        if order:
+            query = f"""{parts[0]['selecting']} {selector} {parts[0]['from']} {db_table} 
+            {parts[2]['order']} {order};"""
         else:
             query = f"{parts[0]['selecting']} {selector} {parts[0]['from']} {db_table};"
 
@@ -49,11 +52,19 @@ def query_builder(query_type, db_table, selector=None, col_to_update=None, updat
 
     if query_type == "EDITING":
         if db_table == 'answer':
-            query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} {', '.join(cols_to_update)} = {', '.join(len(cols_to_update) * parts[3]['string_con'])}
-            {parts[2]['where_con']} {condition} {parts[0]['ret']} question_id;"""
+            if len(cols_to_update) > 1:
+                query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} ({', '.join(cols_to_update)}) = ({', '.join(len(cols_to_update) * parts[3]['string_con'])})
+                {parts[2]['where_con']} {condition} {parts[0]['ret']} question_id;"""
+            else:
+                query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} {', '.join(cols_to_update)} = {', '.join(len(cols_to_update) * parts[3]['string_con'])}
+                {parts[2]['where_con']} {condition} {parts[0]['ret']} question_id;"""
         else:
-            query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} ({', '.join(cols_to_update)}) = ({', '.join(len(cols_to_update) * parts[3]['string_con'])}) 
-            {parts[2]['where_con']} {condition};"""
+            if len(cols_to_update) > 1:
+                query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} ({', '.join(cols_to_update)}) = ({', '.join(len(cols_to_update) * parts[3]['string_con'])}) 
+                {parts[2]['where_con']} {condition};"""
+            else:
+                query = f"""{parts[0]['updating']} {db_table} {parts[0]['set']} {', '.join(cols_to_update)} = {', '.join(len(cols_to_update) * parts[3]['string_con'])} 
+                {parts[2]['where_con']} {condition};"""
 
         return query
 

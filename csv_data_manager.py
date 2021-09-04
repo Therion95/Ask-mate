@@ -107,6 +107,3 @@ def edit_answer(answer_id, edited_answer, new_image):
     return csv_connection.csv_editing(variables.ANSWERS, answer_id, keys, values)
 
 
-def delete_image(answer_id):
-    os.remove(display_answer(answer_id)['image'])
-    csv_connection.csv_editing(variables.ANSWERS, answer_id, ['image'], [""])

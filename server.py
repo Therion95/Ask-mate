@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for
 
 import db_data_manager
+import files_connection
 
 app = Flask(__name__)
 # GLOBAL directory for the app config
@@ -51,8 +52,8 @@ def question_edit(question_id):
         edited_question = dict(request.form)
         # csv_connection.csv_editing(QUESTIONS, question_id, keys=list(edited_question.keys()),
         #                        values_to_update=list(edited_question.values()))
-
-        db_data_manager.record_edit('question', question_id, tuple(edited_question.keys()), list(edited_question.values()))
+        new_image = request.files['image']
+        db_data_manager.record_edit('question', question_id, list(edited_question.keys()), list(edited_question.values()), given_file=new_image, given_folder=UPLOAD_FOLDER_Q)
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -60,7 +61,7 @@ def question_edit(question_id):
 @app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
 def answer_edit(answer_id):
     if request.method == 'GET':
-        answer_to_edit = db_data_manager.answer_to_edit(answer_id)
+        answer_to_edit = db_data_manager.record_to_edit(answer_id)
 
         return render_template('answer_edit.html', answer=answer_to_edit)
 # ASIA:
@@ -72,11 +73,11 @@ def answer_edit(answer_id):
 #
 #         return redirect(url_for('question_display', question_id=question_id))
 
-
     elif request.method == 'POST':
         edited_answer = dict(request.form)
+        new_image = request.files['image']
         # question_id = int(db_data_manager.display_answer(answer_id)['question_id'])
-        question_id = db_data_manager.record_edit('answer', answer_id, list(edited_answer.keys()), list(edited_answer.values()))
+        question_id = db_data_manager.record_edit('answer', answer_id, list(edited_answer.keys()), list(edited_answer.values()), given_file=new_image, given_folder=UPLOAD_FOLDER_A)
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -100,9 +101,15 @@ def answer_delete(answer_id):
 
 @app.route('/answer/<int:answer_id>/delete-image', methods=['GET'])
 def delete_image(answer_id):
-    db_data_manager.delete_image(answer_id)
-    # csv_data_manager.delete_image(answer_id)
+    db_data_manager.delete_image(answer_id, 'answer')
     return redirect(url_for('answer_edit', answer_id=answer_id))
+
+
+@app.route('/question/<int:question_id>/delete-image', methods=['GET'])
+def delete_image_q(question_id):
+    db_data_manager.delete_image(question_id, 'question')
+
+    return redirect(url_for('question_edit', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/vote_up', methods=['GET'])
@@ -180,12 +187,35 @@ def add_comment_to_question(question_id):
 @app.route('/question/<int:question_id>/<int:answer_id>/new_comment', methods=['GET', 'POST'])
 def add_comment_to_answer(question_id, answer_id):
     if request.method == 'GET':
-        return render_template('comment_answer.html', answer_id=answer_id, question_id=question_id)
+        return render_template('comment_answer.html', answer_id=answer_id)
     elif request.method == 'POST':
         requested_data = dict(request.form)
-        db_data_manager.add_comment_to_answer(requested_data, answer_id, question_id)
+        db_data_manager.add_comment_to_answer(requested_data, answer_id)
 
-        return redirect(url_for('question_display', answer_id=answer_id, question_id=question_id))
+        return redirect(url_for('question_display', answer_id=answer_id))
+
+
+@app.route('/comment/<int:comment_id>/edit', methods=['GET', 'POST'])
+def edit_comment(comment_id):
+    if request.method == 'GET':
+        comment_to_edit = db_data_manager.record_to_edit(comment_id)
+
+        return render_template('comment_edit.html', comment=comment_to_edit)
+    # ASIA:
+    #     elif request.method == 'POST':
+    #         edited_answer = dict(request.form)
+    #         new_image = request.files['image']
+    #         data_manager.edit_answer(answer_id, edited_answer, new_image)
+    #         question_id = int(data_manager.display_answer(answer_id)['question_id'])
+    #
+    #         return redirect(url_for('question_display', question_id=question_id))
+
+    elif request.method == 'POST':
+        edited_comment = dict(request.form)
+        question_id = db_data_manager.record_edit('comment', comment_id, list(edited_comment.keys()),
+                                                  list(edited_comment.values()))
+
+        return redirect(url_for('question_display', question_id=question_id))
 
 
 @app.route('/comments/<int:given_id>/delete', methods=['GET'])
