@@ -10,3 +10,7 @@ def upload_file(given_image, folder):
         given_image.save(path)
 
         return path
+
+
+def delete_image(path):
+    os.remove(path)

@@ -39,7 +39,7 @@
                 <td><a href={{ url_for('question_display', question_id=value) }}>{{ value }}</a></td>
             {% elif key == 'image' %}
                 {% if dict[key] != None %}
-                    <td><img src="{{ dict[key] }}" alt="Picture" style="width: 30%;" /></td>
+                    <td><img src="{{ dict[key] }}" alt="Picture" style="width: 50%;" /></td>
                 {% elif dict[key] == None %}
                     <td>no image</td>
                 {% endif %}

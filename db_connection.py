@@ -8,8 +8,12 @@ def connect_to_db():
     user_name, password, host, database_name = \
         os.environ.get('PSQL_USER_NAME'), os.environ.get('PSQL_PASSWORD'), \
         os.environ.get('PSQL_HOST'), os.environ.get('PSQL_DB_NAME')
+    try:
+        return psycopg2.connect(dbname=database_name, user=user_name, password=password, host=host)
 
-    return psycopg2.connect(dbname=database_name, user=user_name, password=password, host=host)
+    except psycopg2.DatabaseError as exception:
+        print('Database connection problem')
+        raise exception
 
 
 def creating_a_cursor(connection):
