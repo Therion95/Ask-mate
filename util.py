@@ -25,7 +25,7 @@ def query_builder(query_type, db_table, selector=None, col_to_update=None, updat
         if condition:
             query = f"""{parts[0]['selecting']} {selector} {parts[0]['from']} {db_table} 
             {parts[2]['where_con']} {condition};"""
-        if order:
+        elif order:
             query = f"""{parts[0]['selecting']} {selector} {parts[0]['from']} {db_table} 
             {parts[2]['order']} {order};"""
         else:

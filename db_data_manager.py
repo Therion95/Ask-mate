@@ -53,7 +53,6 @@ def question_display(cursor, question_id, db_table):
 def record_to_edit(cursor, given_id):
     query = util.query_builder('SELECT', 'answer', selector='*', condition=f'id={given_id}')
     cursor.execute(query)
-
     return dict(cursor.fetchone())
 
 
@@ -322,4 +321,4 @@ def sorting_questions(cursor, header, sort):
 def delete_image(cursor, given_id, db_table):
     cursor.execute(f'SELECT image FROM {db_table} WHERE id = {given_id}')
     files_connection.delete_image(dict(cursor.fetchone())['image'])
-    cursor.execute(f"UPDATE {db_table} SET image = '' WHERE id = {given_id} RETURNING image")
+    cursor.execute(f"UPDATE {db_table} SET image = NULL WHERE id = {given_id} RETURNING image")

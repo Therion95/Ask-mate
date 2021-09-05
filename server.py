@@ -68,7 +68,7 @@ def question_edit(question_id):
 def answer_edit(answer_id):
     if request.method == 'GET':
         answer_to_edit = db_data_manager.record_to_edit(answer_id)
-
+        question_id = answer_to_edit['question_id']
         return render_template('answer_edit.html', answer=answer_to_edit)
 # ASIA:
 #     elif request.method == 'POST':
@@ -175,7 +175,7 @@ def answer_question(question_id):
     elif request.method == 'POST':
         requested_data = dict(request.form)
         requested_image = request.files['image']
-        db_data_manager.answer_question(requested_data, requested_image, question_id)
+        db_data_manager.answer_question(requested_data, requested_image, 'answer', question_id)
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -194,12 +194,12 @@ def add_comment_to_question(question_id):
 @app.route('/question/<int:question_id>/<int:answer_id>/new_comment', methods=['GET', 'POST'])
 def add_comment_to_answer(question_id, answer_id):
     if request.method == 'GET':
-        return render_template('comment_answer.html', answer_id=answer_id)
+        return render_template('comment_answer.html', question_id=question_id, answer_id=answer_id)
     elif request.method == 'POST':
         requested_data = dict(request.form)
         db_data_manager.add_comment_to_answer(requested_data, answer_id)
 
-        return redirect(url_for('question_display', answer_id=answer_id))
+        return redirect(url_for('question_display', question_id=question_id))
 
 
 @app.route('/comment/<int:comment_id>/edit', methods=['GET', 'POST'])
