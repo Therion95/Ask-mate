@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Ask-Mate: All questions</title>
+
+{% endblock %}
+
+{% block body %}
+<p><h2>Questions list:</h2>
+<hr><br><br>
+<form action="{{ url_for("list_questions") }}" method="POST">
+    <label for="header">Header</label>
+    <select name="header" id="header">
+        {% for header in list_of_headers[1:6] %}
+            <option>{{ header }}</option>
+        {% endfor %}
+    </select>
+    <label for="sort">Sorting by</label>
+    <select name="sort" id="sort">
+        <option>DESC</option>
+        <option>ASC</option>
+    </select>
+    <button type="submit">Send</button>
+</form>
+    <br><br>
+<table>
+  <thead>
+    <tr>
+      {% for header in headers %}
+      <th>{{ header }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+    {% for dict in data  %}
+        {% for key, value in dict.items() %}
+            {% if key == 'id' %}
+                <td><a href={{ url_for('question_display', question_id=value) }}>{{ value }}</a></td>
+            {% elif key == 'image' %}
+                {% if dict[key] != None %}
+                    <td><img src="{{ dict[key] }}" alt="Picture" style="width: 50%;" /></td>
+                {% elif dict[key] == None %}
+                    <td>no image</td>
+                {% endif %}
+            {% else %}
+                <td>{{ value }}</td>
+            {% endif %}
+    {% endfor %}
+        </tr>
+    {% endfor %}
+  <tbody>
+</table>
+
+{% endblock %}

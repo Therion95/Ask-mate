@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <title>Add new tag</title>
+
+{% endblock %}
+
+{% block body %}
+
+    <h1>Add new tag</h1><br>
+    <form action="{{ url_for('define_new_tag', question_id=question_id) }}" method="post">
+        <label for="new_tag">Add new tag:</label><br>
+        <input type="text" id="new_tag" name="new_tag"><br><br>
+        <input type="submit" value="Add">
+    </form><br><br>
+    <form action="{{ url_for('new_tag', question_id=question_id) }}" method="post">
+        <fieldset>
+            <legend>Choose tags:</legend>
+            {% for tag in tags %}
+                <input type="checkbox" name="tag" id="{{ tag }}" value="{{ tag }}">
+                <label for="{{ tag }}">{{ tag }}</label><br>
+            {% endfor %}
+        </fieldset>
+        <br><br>
+        <input type="submit" value="Submit">
+    </form>
+
+{% endblock %}

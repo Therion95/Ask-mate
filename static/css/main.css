@@ -1,0 +1,49 @@
+body {background-color: #ebebeb;}
+
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #444444;
+    font-size: 11pt;
+    background-color: #FAFAFA;
+}
+    th, td:not(.answer, .question) {border-bottom: 1px solid #ddd;padding: 15px;text-align: left;
+}
+    th:not(.answer, .question) {background-color: #04AA6D;color: white;font-size: 17px;font-weight: bold;
+    }
+    tr:not(.answer, .question):not(.answer, .question):nth-child(odd) {background-color: #f2f2f2;}
+    div {padding: 15px;}
+
+* {
+  box-sizing: border-box;
+}
+
+form.example input[type=text] {
+  padding: 10px;
+  font-size: 17px;
+  border: 1px solid grey;
+  float: left;
+  width: 80%;
+  background: #f1f1f1;
+}
+
+form.example button {
+  float: left;
+  width: 20%;
+  padding: 10px;
+  background: #04AA6D;
+  color: white;
+  font-size: 17px;
+  border: 1px solid grey;
+  border-left: none;
+  cursor: pointer;
+}
+
+form.example button:hover {
+  background: #0b7dda;
+}
+
+form.example::after {
+  content: "";
+  clear: both;
+  display: table;
+}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Ask-Mate: get_searched_phrases results</title>
+
+{% endblock %}
+
+{% block body %}
+<p><h2>Searching results:</h2>
+<hr><br>
+<table>
+  <tr>
+      {% for header in headers %}
+      <th>{{ header }}</th>
+      {% endfor %}
+  </tr>
+    <tr>
+    {% for dict in data  %}
+        {% for key, value in dict.items() %}
+            {% if key == 'id' %}
+                <td><a href={{ url_for('question_display', question_id=value) }}>{{ value }}</a></td>
+            {% elif key == 'image' %}
+                {% if dict[key] != None %}
+                    <td><img src="{{ dict[key] }}" alt="Picture" style="width: 30%;" /></td>
+                {% elif dict[key] == None %}
+                    <td>no image</td>
+                {% endif %}
+            {% else %}
+                <td>{{ value }}</td>
+            {% endif %}
+    {% endfor %}
+        </tr>
+    {% endfor %}
+
+</table>
+
+{% endblock %}

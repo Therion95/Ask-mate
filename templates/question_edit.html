@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <title>Ask-Mate: Edit a question {{ question['id'] }}</title>
+
+{% endblock %}
+
+{% block body %}
+    <h1>Edit a question</h1><br>
+    <a href="{{ url_for('delete_question_image', question_id=question['id']) }}">Delete image</a><br><br>
+
+    <form action="{{ url_for('question_edit', question_id=question['id']) }}" method="post" enctype="multipart/form-data">
+        <label for="message">Edit a question's message:</label><br>
+        <textarea name="message" id="message" rows="4" cols="60">{{ question['message'] }}</textarea><br><br>
+        <label for="image">Upload new image:</label><br>
+        <input  type="file" name="image" id="image"><br><br>
+        <input type="submit" value="Edit">
+    </form>
+
+{% endblock %}

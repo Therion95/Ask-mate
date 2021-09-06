@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <title>Ask-Mate: Main page</title>
+
+{% endblock %}
+
+
+{% block body %}
+    <br>
+    <form action="{{ url_for('search_results') }}" method="post" class="example" style="margin:auto;max-width:400px" >
+        <label for="search">
+            <input type="text" placeholder="Search.." name="search" id="search">
+        </label>
+        <button type="submit"><i class="fa fa-search"></i></button>
+    </form>
+    <br>
+    <h3>Get involved and contribute in helping those who need it!</h3>
+
+    <h4><i>Ask-Mate</i> is a simple questions-answers website. You can find answers to various questions from different categories on Ask-Mate!
+        You may ask questions on any topic and read all the questions and answers posted by other people.</h4>
+    <ul>
+        <li><a href={{ url_for('list_questions') }}>Questions list</a></li>
+        <li><a href={{ url_for('add_question') }}>Ask a question</a></li>
+    </ul>
+
+<br><br><br>
+
+
+<p><h2>5 latest questions:</h2>
+<hr><br>
+<table>
+    <thead>
+          <tr>
+              {% for header in headers %}
+              <th>{{ header }}</th>
+              {% endfor %}
+          </tr>
+    </thead>
+    <tbody>
+        <tr>
+        {% for question in questions  %}
+            {% for key, value in question.items() %}
+                {% if key == 'id' %}
+                <td><a href={{ url_for('question_display', question_id=value) }}>{{ value }}</a></td>
+                {% elif key == 'image' %}
+                    {% if question[key] != None %}
+                        <td><img src="{{ question[key] }}" alt="Picture" style="width: 30%;" /></td>
+                    {% elif question[key] == None %}
+                        <td>no image</td>
+                    {% endif %}
+                {% else %}
+                    <td>{{ value }}</td>
+                {% endif %}
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
+
+{% endblock %}
