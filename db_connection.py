@@ -36,10 +36,3 @@ def executor(func):
         return to_return
 
     return decorator
-
-
-@executor
-def column_names(cursor, db_table):
-    cursor.execute(f"Select * FROM {db_table} LIMIT 0")
-
-    return [desc[0] for desc in cursor.description][1:]

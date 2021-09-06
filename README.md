@@ -38,7 +38,7 @@ Just like last week, management is handing out a **prioritized list** of new use
     - There is a form with a `message` field, and it issues `POST` requests.
     - After submitting, the page redirects to the question detail page, and the new comment appears together with its submission time.
 
-5. Implement searching in questions and answers. (Hint: [Passing data from browser](https://learn.code.cool/web-python/#/../pages/web/passing-data-from-browser))
+5. Implement get_searched_phrases in questions and answers. (Hint: [Passing data from browser](https://learn.code.cool/web-python/#/../pages/web/passing-data-from-browser))
 
     - There is a search box and "Search" button on the main page.
     - When writing something and pressing the button, a results list of questions is displayed (with the same data as in the list page).

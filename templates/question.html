@@ -9,12 +9,12 @@
 
 {% block body %}
 
-    <p><h3>Question {{ question['id'] }} - <i>the {{ headers[4] }}:</i></h3>
-    <h2>{{ question[headers[4]] }}</h2>
-    <br><p><h3><i>{{ headers[5] }}:</i></h3>
-    <p><h2>{{ question[headers[5]] }}</h2>
+    <p><h3>Question {{ question['id'] }} - <i>the {{ headers[3] }}:</i></h3>
+    <h2>{{ question[headers[3]] }}</h2>
+    <br><p><h3><i>{{ headers[4] }}:</i></h3>
+    <p><h2>{{ question[headers[4]] }}</h2>
     {% if question['image'] != None %}
-        <br><p><h3><i>{{ headers[6] }}:</i></h3>
+        <br><p><h3><i>{{ headers[5] }}:</i></h3>
         <img src="/{{ question['image'] }}" alt="Picture" style="width: 30%;" />
     {% endif %}
     <br><br>
@@ -30,14 +30,14 @@
     <br>
     <h5>Actions:</h5><hr>
     <table>
-            <tr><th class="question">{{ headers[3] }}: {{ question[headers[3]] }}</th></tr>
+            <tr><th class="question">{{ headers[2] }}: {{ question[headers[2]] }}</th></tr>
            <tr class="question">
                <td class="question"><a href={{ url_for('question_voting_up', question_id=question['id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" title="Vote up"/></a></td>
                <td class="question"><a href={{ url_for('question_voting_down', question_id=question['id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" title="Vote down"/></a></td>
                <td class="question"><a href={{ url_for("answer_question", question_id=question["id"]) }}><img src="/static/images/answer.png" alt="Answer the question" style="width: 10%" title="Answer the question"></a></td>
                <td class="question"><a href={{ url_for('question_edit', question_id=question['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" title="Edit"/></a></td>
                <td class="question"><a href={{ url_for('question_delete', question_id=question['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" title="Delete"/></a></td>
-               <td class="question"><a href={{ url_for('add_comment_to_question', question_id=question['id']) }}><img src="/static/images/comment.png" alt="Add a comment" style="width: 10%;" title="Add a comment"/></a></td>
+               <td class="question"><a href={{ url_for('comment_question', question_id=question['id']) }}><img src="/static/images/comment.png" alt="Add a comment" style="width: 10%;" title="Add a comment"/></a></td>
 
            </tr></table>
     <br>
@@ -47,7 +47,7 @@
     <h3><i>Comments to question {{ question['id'] }}:</i></h3>
     {% for comment in comments %}
         <b>{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
-        <a href={{ url_for('delete_comment', given_id=comment['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete"/></a>
+        <a href={{ url_for('delete_question_comment', question_id=question['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete"/></a>
         <br><br>
     {% endfor %}
     {% endif %}
@@ -66,7 +66,7 @@
            {% for comment in comments_a %}
                {% if answer['id'] == comment %}
                    <h3><i>Comments to answer:</i></h3>
-                   <b>{{ comments_a[comment]['message'] }}</b><br>at {{ comments_a[comment]['submission_time'] }}<a href={{ url_for('delete_comment', given_id=comments_a[comment]['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete"/></a>
+                   <b>{{ comments_a[comment]['message'] }}</b><br>at {{ comments_a[comment]['submission_time'] }}<a href={{ url_for('delete_answer_comment',answer_id=answer['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete"/></a>
                    <br>
                {% endif %}
     {% endfor %}
@@ -75,13 +75,13 @@
            <p><h5>Actions:</h5>
            <hr>
            <table>
-               <tr><th class="answer">{{ headers[3] }}: {{ answer[headers[3]] }}</th></tr>
+               <tr><th class="answer">{{ headers[2] }}: {{ answer[headers[2]] }}</th></tr>
            <tr class="answer">
                <td class="answer"><a href={{ url_for('answer_voting_up', answer_id=answer['id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" /></a></td>
                <td class="answer"><a href={{ url_for('answer_voting_down', answer_id=answer['id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" /></a></td>
                <td class="answer"><a href={{ url_for('answer_edit', answer_id=answer['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" /></a></td>
                <td class="answer"><a href={{ url_for('answer_delete', answer_id=answer['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" /></a></td>
-               <td class="answer"><a href={{ url_for('add_comment_to_answer', question_id=question['id'], answer_id=answer['id']) }}><img src="/static/images/comment.png" alt="Add a comment to answer" style="width: 10%;" /></a></td>
+               <td class="answer"><a href={{ url_for('comment_answer', question_id=question['id'], answer_id=answer['id']) }}><img src="/static/images/comment.png" alt="Add a comment to answer" style="width: 10%;" /></a></td>
 
            </tr></table>
            </div><br>
