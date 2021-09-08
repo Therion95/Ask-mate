@@ -14,7 +14,7 @@
         <input type="text" id="new_tag" name="new_tag"><br><br>
         <input type="submit" value="Add">
     </form><br><br>
-    <form action="{{ url_for('new_tag', question_id=question_id) }}" method="post">
+    <form action="{{ url_for('assign_tag_to_question', question_id=question_id) }}" method="post">
         <fieldset>
             <legend>Choose tags:</legend>
             {% for tag in tags %}
