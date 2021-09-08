@@ -140,7 +140,7 @@ def define_new_tag(question_id):
     tag = dict(request.form)
     db_data_manager.add_tag(tag['new_tag'])
 
-    return redirect(url_for('new_tag', question_id=question_id))
+    return redirect(url_for('assign_tag_to_question', question_id=question_id))
 
 
 # --------------------------------------------------------
