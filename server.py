@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 import db_data_manager
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = "sa37f2$fs(#fskj34"
 
 # --------------------------------------------------------
 
@@ -28,7 +29,7 @@ def search_results():
             return render_template('search_results.html', data=data, headers=headers)
 
         else:
-
+            flash('No results')
             return redirect(url_for('index'))
 
 # --------------------------------------------------------

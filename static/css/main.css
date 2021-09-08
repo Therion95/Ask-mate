@@ -47,3 +47,25 @@ form.example::after {
   clear: both;
   display: table;
 }
+
+.alert {
+  padding: 10px;
+  background-color: #A7D0A6;
+  color: #427C41;
+}
+
+.closebtn {
+  margin-left: 15px;
+  color: #427C41;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
+

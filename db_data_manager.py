@@ -88,18 +88,16 @@ def get_record_to_edit(cursor, given_id):
 
 @db_connection.executor
 def get_searched_phrases(cursor, word):
-    query = f'''
+    query = """
         SELECT question.*
         FROM question
         LEFT JOIN answer
         ON question.id = answer.question_id
-        WHERE title LIKE {word}
-        OR question.message LIKE {word}
-        OR answer.message LIKE {word}
-    '''
-
-    cursor.execute(query)
-
+        WHERE title LIKE %s
+        OR question.message LIKE %s
+        OR answer.message LIKE %s
+    """
+    cursor.execute(query, [f"%{word}%", f"%{word}%", f"%{word}%"])
     return cursor.fetchall()
 
 

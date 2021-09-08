@@ -9,7 +9,14 @@
 </head>
 <body>
 <p><h1><a href="/">Ask-Mate: now you know.</a></h1>
-<hr>
+<hr><br>
+{% for message in get_flashed_messages() %}
+    <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        {{ message }}
+    </div><br>
+{% endfor %}
+
     {% block body %}{% endblock %}
 
 </body>
