@@ -92,16 +92,16 @@ def get_record_to_edit(cursor, given_id):
 
 @db_connection.executor
 def get_searched_phrases(cursor, word):
-    query = """
+    query = f"""
         SELECT question.*
         FROM question
         LEFT JOIN answer
         ON question.id = answer.question_id
-        WHERE title LIKE %s
-        OR question.message LIKE %s
-        OR answer.message LIKE %s
+        WHERE title LIKE '{word}'
+        OR question.message LIKE '{word}'
+        OR answer.message LIKE '{word}'
     """
-    cursor.execute(query, [f"%{word}%", f"%{word}%", f"%{word}%"])
+    cursor.execute(query)
     return cursor.fetchall()
 
 
@@ -373,30 +373,19 @@ def add_new_user_to_db(cursor, user_data):
 
 
 @db_connection.executor
-def is_email_unique(cursor, user_data):
-    query = """
+def is_data_unique(cursor, column, user_data):
+    query = f"""
         select id
         from users
-        where email like %s
+        where {column} like '{user_data}'
     """
-    cursor.execute(query, [user_data['email']])
-    return False if cursor.fetchone() else True
-
-
-@db_connection.executor
-def is_user_name_unique(cursor, user_data):
-    query = """
-        select id
-        from users
-        where user_name like %s
-    """
-    cursor.execute(query, [user_data['user_name']])
+    cursor.execute(query)
     return False if cursor.fetchone() else True
 
 
 def save_data_if_correct(user_data):
-    if is_email_unique(user_data):
-        if is_user_name_unique(user_data):
+    if is_data_unique('email', user_data['email']):
+        if is_data_unique('user_name', user_data['user_name']):
             if user_data['password'] == user_data['repeat_password']:
                 add_new_user_to_db(user_data)
                 flash("You have been register!")
