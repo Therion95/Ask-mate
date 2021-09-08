@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <title>Ask-Mate: Registration</title>
+
+{% endblock %}
+
+
+{% block body %}
+    <h1>Registration</h1>
+
+    <form action="{{ url_for('registration') }}" method="post" >
+        <p><label for="user_name">
+            <input type="text" placeholder="User name/nick" name="user_name" id="user_name" required></label><br></p>
+        <p><label for="email">
+            <input type="email" placeholder="E-mail" name="email" id="email" required></label><br></p>
+        <p><label for="password">
+            <input type="password" placeholder="Password" name="password" id="password" required></label><br></p>
+        <p><label for="repeat_password">
+            <input type="password" placeholder="Repeat password" name="repeat_password" id="repeat_password" required></label><br></p>
+        <button type="submit" value="Submit">Register</button>
+    </form>
+
+{% endblock %}

@@ -4,6 +4,7 @@ import db_data_manager
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "sa37f2$fs(#fskj34"
 
+
 # --------------------------------------------------------
 
 
@@ -13,7 +14,19 @@ def index():
     latest_questions = db_data_manager.get_five_latest_questions()
     return render_template('index.html', headers=latest_questions[0].keys(), questions=latest_questions)
 
+
 # --------------------------------------------------------
+# REGISTRATION
+@app.route('/registration', methods=['GET', 'POST'])
+def registration():
+    if request.method == 'POST':
+        user_data = dict(request.form)
+        if db_data_manager.save_data_if_correct(user_data):
+            return redirect(url_for('index'))
+    return render_template('registration.html')
+
+
+# ---------------------------------------------------------
 
 
 # SEARCH ENGINE on index page
@@ -22,15 +35,14 @@ def search_results():
     if request.method == 'POST':
         word = dict(request.form)['search']
         data = db_data_manager.get_searched_phrases(word)
-
         if data:
             headers = data[0].keys()
-
             return render_template('search_results.html', data=data, headers=headers)
 
         else:
             flash('No results')
             return redirect(url_for('index'))
+
 
 # --------------------------------------------------------
 
@@ -50,6 +62,7 @@ def list_questions():
 
         return render_template('list.html', data=db_data, headers=db_headers, list_of_headers=list(db_headers))
 
+
 # --------------------------------------------------------
 
 
@@ -62,6 +75,7 @@ def question_display(question_id):
 
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
                            comments=comments, comments_a=comments_a, tags=tags)
+
 
 # --------------------------------------------------------
 
@@ -128,6 +142,7 @@ def define_new_tag(question_id):
 
     return redirect(url_for('new_tag', question_id=question_id))
 
+
 # --------------------------------------------------------
 
 
@@ -160,6 +175,7 @@ def answer_voting_down(answer_id):
     question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
 
     return redirect(url_for('question_display', question_id=question_id))
+
 
 # --------------------------------------------------------
 
@@ -227,6 +243,7 @@ def assign_tag_to_question(question_id):
 
         return redirect(url_for('question_display', question_id=question_id))
 
+
 # --------------------------------------------------------
 
 
@@ -279,6 +296,7 @@ def delete_tag(question_id, tag_id):
     db_data_manager.delete_tag(question_id, tag_id)
 
     return redirect(url_for('question_display', question_id=question_id))
+
 
 # --------------------------------------------------------
 

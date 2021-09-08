@@ -1,4 +1,8 @@
 import os
+
+import bcrypt as bcrypt
+from flask import flash
+
 import db_connection
 import files_connection
 import util
@@ -356,6 +360,55 @@ def get_tag_names_by_question_id(cursor, question_id):
     return cursor.fetchall()
 
 
+@db_connection.executor
+def add_new_user_to_db(cursor, user_data):
+    email = user_data['email']
+    user_name = user_data['user_name']
+    password = user_data['password']
+
+    hashed = (bcrypt.hashpw(password.encode('utf8'), bcrypt.gensalt())).decode('utf-8')
+    query = """
+        INSERT INTO users (email, user_name, hash)
+        VALUES (%s, %s, %s)
+    """
+    cursor.execute(query, [email, user_name, hashed])
+
+
+@db_connection.executor
+def is_email_unique(cursor, user_data):
+    query = """
+        select id
+        from users
+        where email like %s
+    """
+    cursor.execute(query, [user_data['email']])
+    return False if cursor.fetchone() else True
+
+
+@db_connection.executor
+def is_user_name_unique(cursor, user_data):
+    query = """
+        select id
+        from users
+        where user_name like %s
+    """
+    cursor.execute(query, [user_data['user_name']])
+    return False if cursor.fetchone() else True
+
+
+def save_data_if_correct(user_data):
+    if is_email_unique(user_data):
+        if is_user_name_unique(user_data):
+            if user_data['password'] == user_data['repeat_password']:
+                add_new_user_to_db(user_data)
+                flash("You have been register!")
+                return True
+            else:
+                flash("Given passwords don't match")
+        else:
+            flash('User name is not available')
+    else:
+        flash('E-mail address is not available')
 
 
 
