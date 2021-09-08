@@ -362,16 +362,14 @@ def get_tag_names_by_question_id(cursor, question_id):
 
 @db_connection.executor
 def add_new_user_to_db(cursor, user_data):
-    email = user_data['email']
-    user_name = user_data['user_name']
     password = user_data['password']
-
     hashed = (bcrypt.hashpw(password.encode('utf8'), bcrypt.gensalt())).decode('utf-8')
+
     query = """
-        INSERT INTO users (email, user_name, hash)
-        VALUES (%s, %s, %s)
+        INSERT INTO users (email, user_name, hash, registration_date)
+        VALUES (%s, %s, %s, %s)
     """
-    cursor.execute(query, [email, user_name, hashed])
+    cursor.execute(query, [user_data['email'], user_data['user_name'], hashed, util.current_date()])
 
 
 @db_connection.executor
