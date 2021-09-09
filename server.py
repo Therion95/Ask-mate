@@ -1,3 +1,4 @@
+import bcrypt
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import db_data_manager
 
@@ -16,7 +17,7 @@ def index():
 
 
 # --------------------------------------------------------
-# REGISTRATION
+# REGISTRATION AND LOGIN
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
     if request.method == 'POST':
@@ -24,6 +25,27 @@ def registration():
         if db_data_manager.save_data_if_correct(user_data):
             return redirect(url_for('index'))
     return render_template('registration.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    else:
+        email = request.form['email']
+        if db_data_manager.verify_password(request.form['password'], db_data_manager.get_hash(email)['hash']):
+            session['email'] = email
+            flash('You are logged in!')
+            return redirect(url_for('index'))
+        else:
+            flash('Incorrect data')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('email', None)
+    flash('You have been logged out!')
+    return redirect(url_for('index'))
 
 
 # ---------------------------------------------------------

@@ -15,6 +15,14 @@
         </label>
         <button type="submit"><i class="fa fa-search"></i></button>
     </form>
+        <br>
+
+    <a href="{{ url_for('registration') }}">Registration page</a><br>
+    {% if session['email'] %}
+        <p>Logged in as {{ session['email'] }} <a href="{{ url_for('logout') }}">Log out!</a></p>
+    {% else %}
+        <p><a href="{{ url_for('login') }}">LOGIN</a></p>
+    {% endif %}
     <br>
     <h3>Get involved and contribute in helping those who need it!</h3>
 

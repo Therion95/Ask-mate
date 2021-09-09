@@ -1,7 +1,7 @@
 import os
 
 import bcrypt as bcrypt
-from flask import flash
+from flask import flash, session, request
 
 import db_connection
 import files_connection
@@ -154,6 +154,21 @@ def get_tags_id(cursor, tags):
     return get_id
 
 
+@db_connection.executor
+def get_logged_user_data(cursor):
+    if request.cookies.get('session'):
+        user_email = session.get('email')
+        query = f"""
+            SELECT id, user_name, email
+            FROM users
+            WHERE email = '{user_email}'
+        """
+        cursor.execute(query)
+        return cursor.fetchone()
+    else:
+        return None
+
+
 # |-----------------------------------------|
 # |ADDING QUESTIONS, ANSWERS, COMMENTS, TAGS|
 # |_________________________________________|
@@ -163,10 +178,11 @@ def get_tags_id(cursor, tags):
 def add_question(cursor, requested_data, requested_image, db_table):
     path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_Q)
     if path:
-        values = [str(v) for v in [util.current_date(), '0', '0', requested_data['title'], requested_data['message'], path]]
+        values = [str(v) for v in [util.current_date(), '0', '0', requested_data['title'], requested_data['message'],
+                                   path, get_logged_user_data()['id']]]
     else:
         values = [str(v) if v else v for v in [util.current_date(), '0', '0', requested_data['title'],
-                                               requested_data['message'], None]]
+                                               requested_data['message'], None, get_logged_user_data()['id']]]
 
     columns = get_listed_column_names(db_table)
     query = f'''
@@ -185,9 +201,10 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
     path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_A)
     if path:
         values = [str(v) for v in
-                  [util.current_date(), 0, question_id, requested_data['message'], path]]
+                  [util.current_date(), 0, question_id, requested_data['message'], path, get_logged_user_data()['id']]]
     else:
-        values = [str(v) if v else v for v in [util.current_date(), 0, question_id, requested_data['message'], None]]
+        values = [str(v) if v else v for v in [util.current_date(), 0, question_id, requested_data['message'], None,
+                                               get_logged_user_data()['id']]]
 
     columns = get_listed_column_names(db_table)
     query = f"""
@@ -202,9 +219,11 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
 @db_connection.executor
 def add_comment(cursor, requested_data, question_id=None, answer_id=None):
     if question_id:
-        values = [str(v) if v else v for v in [question_id, None, requested_data['message'], util.current_date(), 0]]
+        values = [str(v) if v else v for v in [question_id, None, requested_data['message'], util.current_date(), 0,
+                                               get_logged_user_data()['id']]]
     elif answer_id:
-        values = [str(v) if v else v for v in [None, answer_id, requested_data['message'], util.current_date(), 0]]
+        values = [str(v) if v else v for v in [None, answer_id, requested_data['message'], util.current_date(), 0,
+                                               get_logged_user_data()['id']]]
 
     columns = get_listed_column_names('comment')
     query = f'''
@@ -398,12 +417,17 @@ def save_data_if_correct(user_data):
         flash('E-mail address is not available')
 
 
+@db_connection.executor
+def get_hash(cursor, email):
+    query = """
+    SELECT hash
+    FROM users
+    WHERE email = %s
+    """
+    cursor.execute(query, [email])
+    return cursor.fetchone()
 
 
-
-
-
-
-
-
+def verify_password(password, hashed):
+    return bcrypt.checkpw(password.encode('utf8'), hashed.encode('utf-8'))
 
