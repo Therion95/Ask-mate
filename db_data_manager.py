@@ -70,9 +70,9 @@ def get_question_data_display(cursor, question_id, db_table):
                     '''
 
                     cursor.execute(query)
-                    a_temp = cursor.fetchone()
+                    a_temp = cursor.fetchall()
                     if a_temp:
-                        comments_to_answers[answer_id] = dict(a_temp)
+                        comments_to_answers[answer_id] = [dict(row) for row in a_temp]
 
             return question, headers, answers, question_comments, comments_to_answers
 

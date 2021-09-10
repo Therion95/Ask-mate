@@ -72,7 +72,15 @@ def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
     question_to_display, headers, answers, comments, comments_a = db_data_manager.get_question_data_display(question_id,
                                                                                                             'question')
-
+    # print(comments_a)
+    # print(comments)
+    # for comment in comments:
+    #     print(comment['id'])
+    # for comments in comments_a.values():
+    #     for dict in comments:
+    #         # print(comments)
+    #         print(dict)
+    #         print(dict['message'])
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
                            comments=comments, comments_a=comments_a, tags=tags)
 
@@ -276,18 +284,15 @@ def delete_question_image(question_id):
     return redirect(url_for('question_edit', question_id=question_id))
 
 
-@app.route('/comments//<int:question_id>/delete', methods=['GET'])
-def delete_question_comment(question_id):
-    db_data_manager.record_delete('comment', 'question_id', question_id)
-
+@app.route('/comments/question<int:question_id>/comment<int:comment_id>/delete', methods=['GET'])
+def delete_question_comment(question_id, comment_id):
+    db_data_manager.record_delete('comment', 'id', comment_id)
     return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/comments/<int:answer_id>/delete', methods=['GET'])
-def delete_answer_comment(answer_id):
-    db_data_manager.record_delete('comment', 'answer_id', answer_id)
-    question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
-
+@app.route('/comments/q<int:question_id>/comment<int:comment_id>/delete_comment_answer', methods=['GET'])
+def delete_answer_comment(comment_id, question_id):
+    db_data_manager.record_delete('comment', 'id', comment_id)
     return redirect(url_for('question_display', question_id=question_id))
 
 
