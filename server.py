@@ -73,7 +73,7 @@ def search_results():
 @app.route('/list', methods=['GET', 'POST'])
 def list_questions():
     if request.method == 'GET':
-        db_data = db_data_manager.get_listed_column('question')
+        db_data = db_data_manager.get_list_of_questions()
         db_headers = db_data[0].keys()
 
         return render_template('list.html', data=db_data, headers=db_headers, list_of_headers=list(db_headers))
@@ -92,11 +92,12 @@ def list_questions():
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
-    question_to_display, headers, answers, comments, comments_a = db_data_manager.get_question_data_display(question_id,
-                                                                                                            'question')
+    question_to_display, headers, answers, comments, comments_a, user = db_data_manager.get_question_data_display(
+        question_id, 'question')
+    print(user)
 
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
-                           comments=comments, comments_a=comments_a, tags=tags)
+                           comments=comments, comments_a=comments_a, tags=tags, user=user)
 
 
 # --------------------------------------------------------

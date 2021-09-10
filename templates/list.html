@@ -43,6 +43,12 @@
                 {% elif dict[key] == None %}
                     <td>no image</td>
                 {% endif %}
+            {% elif key == 'user_name' %}
+                {% if value == None %}
+                    <td>Guest</td>
+                {% else %}
+                    <td>{{ value }}</td>
+                {% endif %}
             {% else %}
                 <td>{{ value }}</td>
             {% endif %}
