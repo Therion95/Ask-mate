@@ -15,10 +15,10 @@
     <p><h2>{{ question[headers[4]] }}</h2>
     <br>
     <p><h3>Author:&nbsp;&nbsp;
-    {% if user == [] %}
+    {% if question['user_name'] == None %}
         <b>Guest</b>
     {% else %}
-        <b>{{ user[0]['user_name'] }}</b>
+        <b>{{ question['user_name'] }}</b>
     {% endif %}</h3>
     <br><br>
     {% if question['image'] != None %}
@@ -54,13 +54,7 @@
     <br>
     <h3><i>Comments to question {{ question['id'] }}:</i></h3>
     {% for comment in comments %}
-        <b>
-            {% if user == [] %}
-                Guest:&nbsp;&nbsp;
-            {% else %}
-                {{ user[0]['user_name'] }}:&nbsp;&nbsp;
-            {% endif %}
-            {{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
+        <b>{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
         <a href={{ url_for('delete_question_comment', question_id=question['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete"/></a>
         <br><br>
     {% endfor %}
@@ -69,14 +63,14 @@
     <hr><br>
     {% if answers %}
     <p><h3><i>Answers to question {{ question['id'] }}:</i></h3>
-    <h4>Author:&nbsp;&nbsp;
-        {% if user == [] %}
-                Guest
-        {% else %}
-            {{ user[0]['user_name'] }}
-        {% endif %}</h4>
     {% for answer in answers %}
-       <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['message'] }}
+       <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>
+           {% if answer['user_name'] == None %}
+                Guest:&nbsp;&nbsp;
+            {% else %}
+                {{ answer['user_name'] }}:&nbsp;&nbsp;
+            {% endif %}
+           {{ answer['message'] }}
            <br>
            {% if answer['image'] != None %}
                <img src="/{{ answer['image'] }}" alt="Picture" style="width: 30%;" /><br><br>
@@ -86,13 +80,7 @@
            {% for comment in comments_a %}
                {% if answer['id'] == comment %}
                    <h3><i>Comments to answer:</i></h3>
-                   <b>
-                       {% if user == [] %}
-                            Guest:&nbsp;&nbsp;
-                       {% else %}
-                           {{ user[0]['user_name'] }}:&nbsp;&nbsp;
-                       {% endif %}
-                       {{ comments_a[comment]['message'] }}</b><br>at {{ comments_a[comment]['submission_time'] }}<a href={{ url_for('delete_answer_comment',answer_id=answer['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete"/></a>
+                   <b>{{ comments_a[comment]['message'] }}</b><br>at {{ comments_a[comment]['submission_time'] }}<a href={{ url_for('delete_answer_comment',answer_id=answer['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete"/></a>
                    <br>
                {% endif %}
     {% endfor %}
