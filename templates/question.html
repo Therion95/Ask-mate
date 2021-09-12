@@ -31,7 +31,7 @@
         <b>
             <a href={{ url_for('delete_tag', question_id=question['id'], tag_id=tag['id']) }}>
                 <img src="/static/images/x.png" alt="Delete" width="11" title="Delete"/></a>
-            {{ tag['name'] }} &nbsp;&nbsp;&nbsp;&nbsp;</b>
+            <a href="{{ url_for('display_list_questions_by_tag', tag_name=tag['name']) }}">{{ tag['name'] }}</a> &nbsp;&nbsp;&nbsp;&nbsp;</b>
     {% endfor %}
     <a href={{ url_for('assign_tag_to_question', question_id=question['id']) }}><img src="/static/images/plus.png" alt="Plus" width="10" title="Add new tag"/></a>
     <br>
@@ -64,12 +64,6 @@
     <hr><br>
     {% if answers %}
     <p><h3><i>Answers to question {{ question['id'] }}:</i></h3>
-    <h4>Author:&nbsp;&nbsp;
-        {% if user == [] %}
-                Guest
-        {% else %}
-            {{ user[0]['user_name'] }}
-        {% endif %}</h4>
     {% for answer in answers %}
        <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['message'] }}
            <br>

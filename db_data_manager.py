@@ -80,21 +80,6 @@ def get_question_data_display(cursor, question_id, db_table):
 
 
 @db_connection.executor
-def get_list_of_questions(cursor):
-    query = f'''
-    SELECT q.id, u.user_name ,q.submission_time, q.view_number, q.vote_number, q.title, q.message, q.image
-    FROM question as q
-    LEFT JOIN users as u
-    ON q.user_id = u.id
-    ORDER BY q.id
-    '''
-
-    cursor.execute(query)
-
-    return [dict(row) for row in cursor.fetchall()]
-
-
-@db_connection.executor
 def get_record_to_edit(cursor, given_id):
     query = f'''
     SELECT *
@@ -276,11 +261,11 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
 
 @db_connection.executor
 def add_comment(cursor, requested_data, question_id=None, answer_id=None):
-    if answer_id and question_id:
-        values = [str(v) if v else v for v in [question_id, answer_id, requested_data['message'], util.current_date(), 0,
-                                               get_logged_user_id()]]
-    elif question_id and answer_id is None:
+    if question_id:
         values = [str(v) if v else v for v in [question_id, None, requested_data['message'], util.current_date(), 0,
+                                               get_logged_user_id()]]
+    elif answer_id:
+        values = [str(v) if v else v for v in [None, answer_id, requested_data['message'], util.current_date(), 0,
                                                get_logged_user_id()]]
 
     columns = get_listed_column_names('comment')
@@ -488,3 +473,32 @@ def get_hash(cursor, email):
 
 def verify_password(password, hashed):
     return bcrypt.checkpw(password.encode('utf8'), hashed.encode('utf-8'))
+
+
+@db_connection.executor
+def get_tags_names_and_numbers(cursor):
+    query = """
+        SELECT tag.name, COUNT(q.tag_id)
+        FROM question_tag as q
+        LEFT JOIN tag
+        ON q.tag_id = tag.id
+        GROUP BY tag.name
+        ORDER BY tag.name
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@db_connection.executor
+def get_questions_by_tag(cursor, tag_name):
+    query = f"""
+        SELECT question.*
+        FROM question
+        LEFT JOIN question_tag
+        ON question.id = question_tag.question_id
+        LEFT JOIN tag
+        ON question_tag.tag_id = tag.id
+        WHERE tag.name LIKE '{tag_name}'
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
