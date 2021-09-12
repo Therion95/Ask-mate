@@ -88,7 +88,7 @@ def list_questions():
 # --------------------------------------------------------
 
 
-# QUESTION DISPLAY page
+# DISPLAY
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
@@ -98,6 +98,18 @@ def question_display(question_id):
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
                            comments=comments, comments_a=comments_a, tags=tags)
 
+
+@app.route('/tags')
+def display_tag_page():
+    tags = db_data_manager.get_tags_names_and_numbers()
+    return render_template('tags.html', tags=tags)
+
+
+@app.route('/list-by-tag/<tag_name>')
+def display_list_questions_by_tag(tag_name):
+    data = db_data_manager.get_questions_by_tag(tag_name)
+    headers = data[0].keys()
+    return render_template('questions_by tag.html', data=data, headers=headers)
 
 # --------------------------------------------------------
 

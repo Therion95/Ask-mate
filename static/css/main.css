@@ -69,3 +69,31 @@ form.example::after {
   color: black;
 }
 
+.list {
+    font-size: 15pt;
+    line-height: 25pt;
+}
+
+.list a:link {
+    text-decoration: none;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #444444;
+}
+
+.list a:visited {
+    text-decoration: none;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #444444;
+}
+
+.list a:hover {
+    text-decoration: underline;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #444444;
+}
+
+.list a:active {
+    text-decoration: underline;
+    font-family: 'Helvetica';
+    color: #444444;
+}

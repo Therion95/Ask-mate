@@ -123,7 +123,7 @@ def get_tags(cursor):
     query = '''
         SELECT name, id
         FROM tag
-        ORDER BY id ASC
+        ORDER BY name ASC
     '''
 
     cursor.execute(query)
@@ -429,3 +429,32 @@ def get_hash(cursor, email):
 
 def verify_password(password, hashed):
     return bcrypt.checkpw(password.encode('utf8'), hashed.encode('utf-8'))
+
+
+@db_connection.executor
+def get_tags_names_and_numbers(cursor):
+    query = """
+        SELECT tag.name, COUNT(q.tag_id)
+        FROM question_tag as q
+        LEFT JOIN tag
+        ON q.tag_id = tag.id
+        GROUP BY tag.name
+        ORDER BY tag.name
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@db_connection.executor
+def get_questions_by_tag(cursor, tag_name):
+    query = f"""
+        SELECT question.*
+        FROM question
+        LEFT JOIN question_tag
+        ON question.id = question_tag.question_id
+        LEFT JOIN tag
+        ON question_tag.tag_id = tag.id
+        WHERE tag.name LIKE '{tag_name}'
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
