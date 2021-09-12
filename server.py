@@ -67,6 +67,28 @@ def search_results():
 
 
 # --------------------------------------------------------
+# LST OF ALL USERS WITH ALL DETAILS
+@app.route('/users', methods=['GET'])
+def list_of_users():
+    get_users_data = db_data_manager.get_details_of_users()
+    get_headers_from_users_db = get_users_data[0].keys()
+    return render_template('users_list.html', data=get_users_data, headers=get_headers_from_users_db,
+                           list_of_headers=list(get_headers_from_users_db))
+
+# SELECTED USER PAGE
+#TODO PASSWORD OR SMTH SO ONE USER CANT SEE OTHER USER DETAILS, LOSOWO GENEROWANE ZNAKI CZY COS
+@app.route('/user/aaa/<int:user_id>', methods=['GET'])
+def display_selected_user(user_id):
+    get_user_data = db_data_manager.get_details_of_specific_user(user_id)
+    get_headers_from_user_db = get_user_data[0].keys()
+    get_question_data = db_data_manager.get_data_from_table_by_user_id('question', user_id)
+    get_answer_data = db_data_manager.get_data_from_table_by_user_id('answer', user_id)
+    get_comment_data = db_data_manager.get_data_from_table_by_user_id('comment', user_id)
+    print(get_answer_data)
+    return render_template('user.html', data=get_user_data, headers=get_headers_from_user_db,
+                           questions=get_question_data, answers=get_answer_data, comments=get_comment_data)
+
+# --------------------------------------------------------
 
 
 # LIST QUESTIONS page
@@ -94,7 +116,7 @@ def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
     question_to_display, headers, answers, comments, comments_a, user = db_data_manager.get_question_data_display(
         question_id, 'question')
-    print(user)
+
 
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
                            comments=comments, comments_a=comments_a, tags=tags, user=user)
@@ -153,7 +175,7 @@ def add_comment_answer(question_id, answer_id):
 
     elif request.method == 'POST':
         requested_data = dict(request.form)
-        db_data_manager.add_comment(requested_data, answer_id=answer_id)
+        db_data_manager.add_comment(requested_data, answer_id=answer_id, question_id=question_id)
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -299,18 +321,15 @@ def delete_question_image(question_id):
     return redirect(url_for('question_edit', question_id=question_id))
 
 
-@app.route('/comments//<int:question_id>/delete', methods=['GET'])
-def delete_question_comment(question_id):
-    db_data_manager.record_delete('comment', 'question_id', question_id)
-
+@app.route('/comments/question<int:question_id>/comment<int:comment_id>/delete', methods=['GET'])
+def delete_question_comment(question_id, comment_id):
+    db_data_manager.record_delete('comment', 'id', comment_id)
     return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/comments/<int:answer_id>/delete', methods=['GET'])
-def delete_answer_comment(answer_id):
-    db_data_manager.record_delete('comment', 'answer_id', answer_id)
-    question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
-
+@app.route('/comments/question<int:question_id>/comment<int:comment_id>/delete_comment_answer', methods=['GET'])
+def delete_answer_comment(comment_id, question_id):
+    db_data_manager.record_delete('comment', 'id', comment_id)
     return redirect(url_for('question_display', question_id=question_id))
 
 

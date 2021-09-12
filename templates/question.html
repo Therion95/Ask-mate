@@ -54,15 +54,10 @@
     <br>
     <h3><i>Comments to question {{ question['id'] }}:</i></h3>
     {% for comment in comments %}
-        <b>
-            {% if user == [] %}
-                Guest:&nbsp;&nbsp;
-            {% else %}
-                {{ user[0]['user_name'] }}:&nbsp;&nbsp;
-            {% endif %}
-            {{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
-        <a href={{ url_for('delete_question_comment', question_id=question['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete"/></a>
-        <br><br>
+            <b>{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
+            <a href={{ url_for('delete_question_comment', question_id=question['id'], comment_id=comment['id']) }}>
+                <img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete" onclick="return confirm('Are you sure you want to delete this comment?');"/></a>
+            <br><br>
     {% endfor %}
     {% endif %}
     <br>
@@ -81,21 +76,18 @@
            {% if answer['image'] != None %}
                <img src="/{{ answer['image'] }}" alt="Picture" style="width: 30%;" /><br><br>
            <br><br>
-            {% endif %}
-
-           {% for comment in comments_a %}
-               {% if answer['id'] == comment %}
-                   <h3><i>Comments to answer:</i></h3>
-                   <b>
-                       {% if user == [] %}
-                            Guest:&nbsp;&nbsp;
-                       {% else %}
-                           {{ user[0]['user_name'] }}:&nbsp;&nbsp;
+           {% endif %}
+       <h3><i>Comments to answer:</i></h3>
+               {% for comment in comments_a.values() %}
+                   {% for dict in comment %}
+                       {% if answer['id'] == dict['answer_id'] %}
+                           <b>{{ dict['message'] }}</b><br>at {{ dict['submission_time'] }}
+                           <a href={{ url_for('delete_answer_comment',comment_id=dict['id'], question_id=question['id']) }}>
+                               <img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete" onclick="return confirm('Are you sure you want to delete this comment?');"/></a>
+                           <br>
                        {% endif %}
-                       {{ comments_a[comment]['message'] }}</b><br>at {{ comments_a[comment]['submission_time'] }}<a href={{ url_for('delete_answer_comment',answer_id=answer['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete"/></a>
-                   <br>
-               {% endif %}
-    {% endfor %}
+                   {% endfor %}
+               {% endfor %}
 
            <br><br>
            <p><h5>Actions:</h5>

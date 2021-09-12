@@ -72,9 +72,9 @@ def get_question_data_display(cursor, question_id, db_table):
                     '''
 
                     cursor.execute(query)
-                    a_temp = cursor.fetchone()
+                    a_temp = cursor.fetchall()
                     if a_temp:
-                        comments_to_answers[answer_id] = dict(a_temp)
+                        comments_to_answers[answer_id] = [dict(row) for row in a_temp]
 
             return question, headers, answers, question_comments, comments_to_answers, user
 
@@ -140,7 +140,7 @@ def get_tags(cursor):
     query = '''
         SELECT name, id
         FROM tag
-        ORDER BY id ASC
+        ORDER BY id
     '''
 
     cursor.execute(query)
@@ -170,6 +170,47 @@ def get_tags_id(cursor, tags):
 
     return get_id
 
+@db_connection.executor
+def get_details_of_users(cursor):
+    query = '''
+        SELECT id, user_name, registration_date, asked_questions, answers, comments, reputation
+        FROM users        
+        ORDER BY id
+    '''
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@db_connection.executor
+def get_details_of_specific_user(cursor, user_id):
+    query = f'''
+        SELECT id, user_name, registration_date, asked_questions, answers, comments, reputation
+        FROM users    
+        WHERE id = {user_id}        
+    '''
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@db_connection.executor
+def get_data_from_table_by_user_id(cursor, db_table, user_id):
+    if db_table == 'question':
+        query = f'''
+            SELECT id AS question_id, message, submission_time
+            FROM {db_table}
+            WHERE user_id = {user_id}
+            '''
+
+    else:
+        query = f'''
+            SELECT question_id, message, submission_time
+            FROM {db_table}
+            WHERE user_id = {user_id}
+            '''
+
+
+    cursor.execute(query)
+
+    return cursor.fetchall()
 
 @db_connection.executor
 def get_logged_user_id(cursor):
@@ -235,11 +276,11 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
 
 @db_connection.executor
 def add_comment(cursor, requested_data, question_id=None, answer_id=None):
-    if question_id:
-        values = [str(v) if v else v for v in [question_id, None, requested_data['message'], util.current_date(), 0,
+    if answer_id and question_id:
+        values = [str(v) if v else v for v in [question_id, answer_id, requested_data['message'], util.current_date(), 0,
                                                get_logged_user_id()]]
-    elif answer_id:
-        values = [str(v) if v else v for v in [None, answer_id, requested_data['message'], util.current_date(), 0,
+    elif question_id and answer_id is None:
+        values = [str(v) if v else v for v in [question_id, None, requested_data['message'], util.current_date(), 0,
                                                get_logged_user_id()]]
 
     columns = get_listed_column_names('comment')
