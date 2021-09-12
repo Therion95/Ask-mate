@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Ask-Mate: User</title>
+    <style>
+        section {
+  display: flex;
+}
+         body {
+        margin: 0;
+      }
+
+      header {
+        background: #04AA6D;
+        height: 100px;
+        width: 100%;
+      }
+
+      h2 {
+        text-align: center;
+        color: white;
+        line-height: 100px;
+        margin: 0;
+      }
+      {#h1:not([head]) {#}
+      {#  background-color: #04AA6D;#}
+      {#  border: none;#}
+      {#  color: white;#}
+      {#  padding: 15px 32px;#}
+      {#  text-align: center;#}
+      {##}
+      {#  display: inline-block;#}
+      {#  font-size: 17px;#}
+      {#  font-weight: bold;#}
+      {##}
+      {#  width: 100%;#}
+      {#}#}
+
+      article {
+        padding: 10px;
+        margin: 10px;
+        text-align: center;
+        background: #f2f2f2;
+        border-bottom: 1px solid #ddd;
+        width: 100%;
+      }
+      button {
+          background-color: #04AA6D;
+          border: none;
+          color: white;
+          padding: 15px 32px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 17px;
+          font-weight: bold;
+          margin: 4px 2px;
+          cursor: pointer;
+
+}
+    </style>
+{% endblock %}
+
+{% block body %}
+    <a href={{ url_for('list_of_users') }}><button>RETURN</button></a>
+    <br><br>
+
+    <h1>User details:</h1>
+    <section>
+    {% for header in headers %}
+      <header><h2>{{ header }}</h2></header>
+    {% endfor %}
+    </section>
+    <section>
+    {% for dict in data  %}
+        {% for key, value in dict.items() %}
+            <article>{{ value }}</article>
+        {% endfor %}
+    {% endfor %}
+    </section>
+    <br><br><br>
+
+    <h1>Questions:</h1>
+    <section>
+    {% for header in questions[0].keys() %}
+      <header><h2>{{ header }}</h2></header>
+    {% endfor %}
+    </section>
+    <br>
+    <section>
+    {% for dict in questions %}
+        {% for key, value in dict.items() %}
+            {% if key == 'question_id' %}
+                <article><a href={{ url_for('question_display', question_id=dict['question_id']) }}>{{ value }}</a></article>
+            {% else %}
+                <article>{{ value }}</article>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </section>
+    <br><br><br>
+
+    <h1>Answers:</h1>
+    <section>
+    {% for header in answers[0].keys() %}
+      <header><h2>{{ header }}</h2></header>
+    {% endfor %}
+    </section>
+    <br>
+    <section>
+    {% for dict in answers %}
+        {% for key, value in dict.items() %}
+            {% if key == 'question_id' %}
+                <article><a href={{ url_for('question_display', question_id=dict['question_id']) }}>{{ value }}</a></article>
+            {% else %}
+                <article>{{ value }}</article>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </section>
+    <br><br><br>
+
+    <h1>Comments:</h1>
+    <section>
+    {% for header in comments[0].keys() %}
+        <header><h2>{{ header }}</h2></header>
+    {% endfor %}
+    </section>
+    <br>
+    <section>
+    {% for dict in comments %}
+        {% for key, value in dict.items() %}
+            {% if key == 'question_id' %}
+                <article><a href={{ url_for('question_display', question_id=dict['question_id']) }}>{{ value }}</a></article>
+            {% else %}
+                <article>{{ value }}</article>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </section>
+    <br><br><br>
+
+
+{% endblock %}

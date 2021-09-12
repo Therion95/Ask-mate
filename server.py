@@ -45,6 +45,28 @@ def search_results():
 
 
 # --------------------------------------------------------
+# LST OF ALL USERS WITH ALL DETAILS
+@app.route('/users', methods=['GET'])
+def list_of_users():
+    get_users_data = db_data_manager.get_details_of_users()
+    get_headers_from_users_db = get_users_data[0].keys()
+    return render_template('users_list.html', data=get_users_data, headers=get_headers_from_users_db,
+                           list_of_headers=list(get_headers_from_users_db))
+
+# SELECTED USER PAGE
+#TODO PASSWORD OR SMTH SO ONE USER CANT SEE OTHER USER DETAILS, LOSOWO GENEROWANE ZNAKI CZY COS
+@app.route('/user/aaa/<int:user_id>', methods=['GET'])
+def display_selected_user(user_id):
+    get_user_data = db_data_manager.get_details_of_specific_user(user_id)
+    get_headers_from_user_db = get_user_data[0].keys()
+    get_question_data = db_data_manager.get_data_from_table_by_user_id('question', user_id)
+    get_answer_data = db_data_manager.get_data_from_table_by_user_id('answer', user_id)
+    get_comment_data = db_data_manager.get_data_from_table_by_user_id('comment', user_id)
+    print(get_answer_data)
+    return render_template('user.html', data=get_user_data, headers=get_headers_from_user_db,
+                           questions=get_question_data, answers=get_answer_data, comments=get_comment_data)
+
+# --------------------------------------------------------
 
 
 # LIST QUESTIONS page
@@ -138,7 +160,7 @@ def add_comment_answer(question_id, answer_id):
 
     elif request.method == 'POST':
         requested_data = dict(request.form)
-        db_data_manager.add_comment(requested_data, answer_id=answer_id)
+        db_data_manager.add_comment(requested_data, answer_id=answer_id, question_id=question_id)
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -290,7 +312,7 @@ def delete_question_comment(question_id, comment_id):
     return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/comments/q<int:question_id>/comment<int:comment_id>/delete_comment_answer', methods=['GET'])
+@app.route('/comments/question<int:question_id>/comment<int:comment_id>/delete_comment_answer', methods=['GET'])
 def delete_answer_comment(comment_id, question_id):
     db_data_manager.record_delete('comment', 'id', comment_id)
     return redirect(url_for('question_display', question_id=question_id))

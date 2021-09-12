@@ -123,7 +123,7 @@ def get_tags(cursor):
     query = '''
         SELECT name, id
         FROM tag
-        ORDER BY id ASC
+        ORDER BY id
     '''
 
     cursor.execute(query)
@@ -153,6 +153,47 @@ def get_tags_id(cursor, tags):
 
     return get_id
 
+@db_connection.executor
+def get_details_of_users(cursor):
+    query = '''
+        SELECT id, user_name, registration_date, asked_questions, answers, comments, reputation
+        FROM users        
+        ORDER BY id
+    '''
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@db_connection.executor
+def get_details_of_specific_user(cursor, user_id):
+    query = f'''
+        SELECT id, user_name, registration_date, asked_questions, answers, comments, reputation
+        FROM users    
+        WHERE id = {user_id}        
+    '''
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@db_connection.executor
+def get_data_from_table_by_user_id(cursor, db_table, user_id):
+    if db_table == 'question':
+        query = f'''
+            SELECT id AS question_id, message, submission_time
+            FROM {db_table}
+            WHERE user_id = {user_id}
+            '''
+
+    else:
+        query = f'''
+            SELECT question_id, message, submission_time
+            FROM {db_table}
+            WHERE user_id = {user_id}
+            '''
+
+
+    cursor.execute(query)
+
+    return cursor.fetchall()
 
 # |-----------------------------------------|
 # |ADDING QUESTIONS, ANSWERS, COMMENTS, TAGS|
@@ -163,10 +204,10 @@ def get_tags_id(cursor, tags):
 def add_question(cursor, requested_data, requested_image, db_table):
     path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_Q)
     if path:
-        values = [str(v) for v in [util.current_date(), '0', '0', requested_data['title'], requested_data['message'], path]]
+        values = [str(v) for v in [util.current_date(), '0', '0', requested_data['title'], requested_data['message'], path, None]]
     else:
         values = [str(v) if v else v for v in [util.current_date(), '0', '0', requested_data['title'],
-                                               requested_data['message'], None]]
+                                               requested_data['message'], None, None]]
 
     columns = get_listed_column_names(db_table)
     query = f'''
@@ -185,9 +226,9 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
     path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_A)
     if path:
         values = [str(v) for v in
-                  [util.current_date(), 0, question_id, requested_data['message'], path]]
+                  [util.current_date(), 0, question_id, requested_data['message'], path, None]]
     else:
-        values = [str(v) if v else v for v in [util.current_date(), 0, question_id, requested_data['message'], None]]
+        values = [str(v) if v else v for v in [util.current_date(), 0, question_id, requested_data['message'], None, None]]
 
     columns = get_listed_column_names(db_table)
     query = f"""
@@ -201,10 +242,12 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
 
 @db_connection.executor
 def add_comment(cursor, requested_data, question_id=None, answer_id=None):
-    if question_id:
-        values = [str(v) if v else v for v in [question_id, None, requested_data['message'], util.current_date(), 0]]
-    elif answer_id:
-        values = [str(v) if v else v for v in [None, answer_id, requested_data['message'], util.current_date(), 0]]
+
+    if answer_id and question_id:
+        values = [str(v) if v else v for v in [question_id, answer_id, requested_data['message'], util.current_date(), 0, None]]
+    elif question_id and answer_id is None:
+        values = [str(v) if v else v for v in [question_id, None, requested_data['message'], util.current_date(), 0, None]]
+
 
     columns = get_listed_column_names('comment')
     query = f'''

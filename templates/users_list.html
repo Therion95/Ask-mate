@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Ask-Mate: Users</title>
+    <style>
+        section {
+  display: flex;
+}
+         body {
+        margin: 0;
+      }
+
+      header {
+        background: #04AA6D;
+        height: 100px;
+        width: 100%;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        line-height: 100px;
+        margin: 0;
+      }
+
+      article {
+        padding: 10px;
+        margin: 10px;
+        text-align: center;
+        background: #f2f2f2;
+        border-bottom: 1px solid #ddd;
+        width: 100%;
+      }
+
+    </style>
+{% endblock %}
+
+{% block body %}
+<p><h2>Users details:</h2>
+<hr><br><br>
+    <section>
+    {% for header in list_of_headers[1:] %}
+      <header><h1>{{ header }}</h1></header>
+    {% endfor %}
+    <br>
+    </section>
+    <section>
+    {% for dict in data %}
+        {% for key, value in dict.items() %}
+            {% if key == 'id' %}
+{#                NIE WIEM CO TU WPISAC#}
+            {% elif key == 'user_name' %}
+                <article><a href={{ url_for('display_selected_user', user_id=dict['id']) }}>{{ value }}</a></article>
+            {% else %}
+                <article>{{ value }}</article>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </section>
+{% endblock %}
