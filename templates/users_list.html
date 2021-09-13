@@ -44,17 +44,17 @@
     {% endfor %}
     <br>
     </section>
-    <section>
     {% for dict in data %}
+        <section>
         {% for key, value in dict.items() %}
             {% if key == 'id' %}
-{#                NIE WIEM CO TU WPISAC#}
+                <input value="{{ value }}" type="hidden">
             {% elif key == 'user_name' %}
                 <article><a href={{ url_for('display_selected_user', user_id=dict['id']) }}>{{ value }}</a></article>
             {% else %}
                 <article>{{ value }}</article>
             {% endif %}
         {% endfor %}
+        </section>
     {% endfor %}
-    </section>
 {% endblock %}

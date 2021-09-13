@@ -4,6 +4,7 @@ import db_data_manager
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "sa37f2$fs(#fskj34"
+TEMPLATES_AUTO_RELOAD = True
 
 
 # --------------------------------------------------------
@@ -13,6 +14,7 @@ app.config['SECRET_KEY'] = "sa37f2$fs(#fskj34"
 @app.route("/")
 def index():
     latest_questions = db_data_manager.get_five_latest_questions()
+
     return render_template('index.html', headers=latest_questions[0].keys(), questions=latest_questions)
 
 
@@ -33,8 +35,9 @@ def login():
         return render_template('login.html')
     else:
         email = request.form['email']
-        if db_data_manager.verify_password(request.form['password'], db_data_manager.get_hash(email)['hash']):
-            session['email'] = email
+        user = db_data_manager.get_hash(email)
+        if db_data_manager.verify_password(request.form['password'], user['hash']):
+            session['user'] = {'id': user['id'], 'email': email, 'user_name': user['user_name']}
             flash('You are logged in!')
             return redirect(url_for('index'))
         else:
@@ -43,7 +46,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('email', None)
+    session.pop('user', None)
     flash('You have been logged out!')
     return redirect(url_for('index'))
 
@@ -76,15 +79,18 @@ def list_of_users():
                            list_of_headers=list(get_headers_from_users_db))
 
 # SELECTED USER PAGE
-#TODO PASSWORD OR SMTH SO ONE USER CANT SEE OTHER USER DETAILS, LOSOWO GENEROWANE ZNAKI CZY COS
-@app.route('/user/aaa/<int:user_id>', methods=['GET'])
+
+@app.route('/user/<int:user_id>', methods=['GET'])
 def display_selected_user(user_id):
+    if not is_logged_in():
+        return redirect(url_for('index'))
+    if user_id != get_user_id_from_session():
+        return redirect(url_for('list_of_users'))
     get_user_data = db_data_manager.get_details_of_specific_user(user_id)
     get_headers_from_user_db = get_user_data[0].keys()
     get_question_data = db_data_manager.get_data_from_table_by_user_id('question', user_id)
     get_answer_data = db_data_manager.get_data_from_table_by_user_id('answer', user_id)
     get_comment_data = db_data_manager.get_data_from_table_by_user_id('comment', user_id)
-    print(get_answer_data)
     return render_template('user.html', data=get_user_data, headers=get_headers_from_user_db,
                            questions=get_question_data, answers=get_answer_data, comments=get_comment_data)
 
@@ -339,8 +345,20 @@ def delete_tag(question_id, tag_id):
 
     return redirect(url_for('question_display', question_id=question_id))
 
-
 # --------------------------------------------------------
+
+def is_logged_in():
+    if 'user' in session.keys():
+        return True
+    else:
+        return False
+
+def get_user_id_from_session():
+    if 'user' in session.keys():
+        return session['user']['id']
+    else:
+        raise RuntimeError('Not logged in user')
+
 
 
 if __name__ == "__main__":

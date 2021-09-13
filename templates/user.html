@@ -82,62 +82,73 @@
 
     <h1>Questions:</h1>
     <section>
-    {% for header in questions[0].keys() %}
-      <header><h2>{{ header }}</h2></header>
-    {% endfor %}
+        <header><h2>Question id</h2></header>
+        <header><h2>Message</h2></header>
+        <header><h2>Submission Time</h2></header>
     </section>
     <br>
-    <section>
-    {% for dict in questions %}
-        {% for key, value in dict.items() %}
-            {% if key == 'question_id' %}
-                <article><a href={{ url_for('question_display', question_id=dict['question_id']) }}>{{ value }}</a></article>
-            {% else %}
-                <article>{{ value }}</article>
-            {% endif %}
+    {% if questions|length > 0 %}
+        {% for dict in questions %}
+            <section>
+            {% for key, value in dict.items() %}
+                {% if key == 'question_id' %}
+                    <article><a href={{ url_for('question_display', question_id=dict['question_id']) }}>{{ value }}</a></article>
+                {% else %}
+                    <article>{{ value }}</article>
+                {% endif %}
+            {% endfor %}
+            </section>
         {% endfor %}
-    {% endfor %}
-    </section>
+    {% else %}
+        <article>No data to display</article>
+    {% endif %}
     <br><br><br>
-
     <h1>Answers:</h1>
     <section>
-    {% for header in answers[0].keys() %}
-      <header><h2>{{ header }}</h2></header>
-    {% endfor %}
+        <header><h2>Question id</h2></header>
+        <header><h2>Message</h2></header>
+        <header><h2>Submission Time</h2></header>
     </section>
     <br>
-    <section>
-    {% for dict in answers %}
-        {% for key, value in dict.items() %}
-            {% if key == 'question_id' %}
-                <article><a href={{ url_for('question_display', question_id=dict['question_id']) }}>{{ value }}</a></article>
-            {% else %}
-                <article>{{ value }}</article>
-            {% endif %}
+    {% if answers|length > 0 %}
+        {% for dict in answers %}
+            <section>
+            {% for key, value in dict.items() %}
+                {% if key == 'question_id' %}
+                    <article><a href={{ url_for('question_display', question_id=dict['question_id']) }}>{{ value }}</a></article>
+                {% else %}
+                    <article>{{ value }}</article>
+                {% endif %}
+            {% endfor %}
+            </section>
         {% endfor %}
-    {% endfor %}
-    </section>
+    {% else %}
+        <article>No data to display</article>
+    {% endif %}
     <br><br><br>
 
     <h1>Comments:</h1>
     <section>
-    {% for header in comments[0].keys() %}
-        <header><h2>{{ header }}</h2></header>
-    {% endfor %}
+        <header><h2>Question id</h2></header>
+        <header><h2>Message</h2></header>
+        <header><h2>Submission Time</h2></header>
     </section>
     <br>
-    <section>
-    {% for dict in comments %}
-        {% for key, value in dict.items() %}
-            {% if key == 'question_id' %}
-                <article><a href={{ url_for('question_display', question_id=dict['question_id']) }}>{{ value }}</a></article>
-            {% else %}
-                <article>{{ value }}</article>
-            {% endif %}
+    {% if comments|length > 0 %}
+        {% for dict in comments %}
+            <section>
+            {% for key, value in dict.items() %}
+                {% if key == 'question_id' %}
+                    <article><a href={{ url_for('question_display', question_id=dict['question_id']) }}>{{ value }}</a></article>
+                {% else %}
+                    <article>{{ value }}</article>
+                {% endif %}
+            {% endfor %}
+            </section>
         {% endfor %}
-    {% endfor %}
-    </section>
+    {% else %}
+        <article>No data to display</article>
+    {% endif %}
     <br><br><br>
 
 

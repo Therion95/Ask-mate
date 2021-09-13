@@ -172,11 +172,20 @@ def get_tags_id(cursor, tags):
 
 @db_connection.executor
 def get_details_of_users(cursor):
-    query = '''
-        SELECT id, user_name, registration_date, asked_questions, answers, comments, reputation
-        FROM users        
+    query = '''        
+        SELECT users.id, user_name, registration_date, COUNT(DISTINCT question.id) AS asked_questions, 
+        COUNT(DISTINCT answer.id) as answers, COUNT(DISTINCT comment.id) as comments, reputation
+        FROM users
+        LEFT JOIN question
+        ON question.user_id = users.id
+        LEFT JOIN answer
+        ON question.user_id = answer.user_id
+        LEFT JOIN comment
+        ON question.user_id = comment.user_id        
+        GROUP BY users.id, user_name, registration_date
         ORDER BY id
     '''
+
     cursor.execute(query)
     return cursor.fetchall()
 
@@ -184,9 +193,18 @@ def get_details_of_users(cursor):
 @db_connection.executor
 def get_details_of_specific_user(cursor, user_id):
     query = f'''
-        SELECT id, user_name, registration_date, asked_questions, answers, comments, reputation
-        FROM users    
-        WHERE id = {user_id}        
+       SELECT users.id, user_name, registration_date, COUNT(DISTINCT question.id) AS asked_questions, 
+        COUNT(DISTINCT answer.id) as answers, COUNT(DISTINCT comment.id) as comments, reputation
+        FROM users
+        LEFT JOIN question
+        ON question.user_id = users.id
+        LEFT JOIN answer
+        ON question.user_id = answer.user_id
+        LEFT JOIN comment
+        ON question.user_id = comment.user_id       
+        WHERE question.user_id = {user_id}
+        GROUP BY users.id, user_name, registration_date
+        ORDER BY id       
     '''
     cursor.execute(query)
     return cursor.fetchall()
@@ -198,6 +216,7 @@ def get_data_from_table_by_user_id(cursor, db_table, user_id):
             SELECT id AS question_id, message, submission_time
             FROM {db_table}
             WHERE user_id = {user_id}
+            ORDER BY question_id
             '''
 
     else:
@@ -205,11 +224,10 @@ def get_data_from_table_by_user_id(cursor, db_table, user_id):
             SELECT question_id, message, submission_time
             FROM {db_table}
             WHERE user_id = {user_id}
+            ORDER BY question_id
             '''
 
-
     cursor.execute(query)
-
     return cursor.fetchall()
 
 @db_connection.executor
@@ -443,10 +461,10 @@ def add_new_user_to_db(cursor, user_data):
     hashed = (bcrypt.hashpw(password.encode('utf8'), bcrypt.gensalt())).decode('utf-8')
 
     query = """
-        INSERT INTO users (email, user_name, hash, registration_date)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO users (email, user_name, hash, registration_date, asked_questions, answers, comments, reputation)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """
-    cursor.execute(query, [user_data['email'], user_data['user_name'], hashed, util.current_date()])
+    cursor.execute(query, [user_data['email'], user_data['user_name'], hashed, util.current_date(), 0, 0, 0 ,0])
 
 
 @db_connection.executor
@@ -478,7 +496,7 @@ def save_data_if_correct(user_data):
 @db_connection.executor
 def get_hash(cursor, email):
     query = """
-    SELECT hash
+    SELECT id, user_name, hash
     FROM users
     WHERE email = %s
     """
