@@ -75,8 +75,9 @@ def list_of_users():
     return render_template('users_list.html', data=get_users_data, headers=get_headers_from_users_db,
                            list_of_headers=list(get_headers_from_users_db))
 
+
 # SELECTED USER PAGE
-#TODO PASSWORD OR SMTH SO ONE USER CANT SEE OTHER USER DETAILS, LOSOWO GENEROWANE ZNAKI CZY COS
+# TODO PASSWORD OR SMTH SO ONE USER CANT SEE OTHER USER DETAILS, LOSOWO GENEROWANE ZNAKI CZY COS
 @app.route('/user/aaa/<int:user_id>', methods=['GET'])
 def display_selected_user(user_id):
     get_user_data = db_data_manager.get_details_of_specific_user(user_id)
@@ -95,7 +96,7 @@ def display_selected_user(user_id):
 @app.route('/list', methods=['GET', 'POST'])
 def list_questions():
     if request.method == 'GET':
-        db_data = db_data_manager.get_list_of_questions()
+        db_data = db_data_manager.get_listed_column('question')
         db_headers = db_data[0].keys()
 
         return render_template('list.html', data=db_data, headers=db_headers, list_of_headers=list(db_headers))
@@ -114,12 +115,12 @@ def list_questions():
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
-    question_to_display, headers, answers, comments, comments_a, user = db_data_manager.get_question_data_display(
+    question_to_display, headers, answers, comments, comments_a = db_data_manager.get_question_data_display(
         question_id, 'question')
 
-
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
-                           comments=comments, comments_a=comments_a, tags=tags, user=user)
+                           comments=comments, comments_a=comments_a, tags=tags)
+
 
 @app.route('/tags')
 def display_tag_page():

@@ -14,12 +14,7 @@
     <br><p><h3><i>{{ headers[4] }}:</i></h3>
     <p><h2>{{ question[headers[4]] }}</h2>
     <br>
-    <p><h3>Author:&nbsp;&nbsp;
-    {% if user == [] %}
-        <b>Guest</b>
-    {% else %}
-        <b>{{ user[0]['user_name'] }}</b>
-    {% endif %}</h3>
+    <p><h3>Author:&nbsp;&nbsp;{{ question['user_name'] }}</h3>
     <br><br>
     {% if question['image'] != None %}
         <br><p><h3><i>{{ headers[5] }}:</i></h3>
@@ -54,7 +49,7 @@
     <br>
     <h3><i>Comments to question {{ question['id'] }}:</i></h3>
     {% for comment in comments %}
-            <b>{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
+            <b>{{ comment['user_name'] }}:&nbsp;&nbsp;{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
             <a href={{ url_for('delete_question_comment', question_id=question['id'], comment_id=comment['id']) }}>
                 <img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete" onclick="return confirm('Are you sure you want to delete this comment?');"/></a>
             <br><br>
@@ -65,7 +60,7 @@
     {% if answers %}
     <p><h3><i>Answers to question {{ question['id'] }}:</i></h3>
     {% for answer in answers %}
-       <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['message'] }}
+       <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['user_name'] }}:&nbsp;&nbsp;{{ answer['message'] }}
            <br>
            {% if answer['image'] != None %}
                <img src="/{{ answer['image'] }}" alt="Picture" style="width: 30%;" /><br><br>
@@ -75,7 +70,7 @@
                {% for comment in comments_a.values() %}
                    {% for dict in comment %}
                        {% if answer['id'] == dict['answer_id'] %}
-                           <b>{{ dict['message'] }}</b><br>at {{ dict['submission_time'] }}
+                           <b>{{ dict['user_name'] }}:&nbsp;&nbsp;{{ dict['message'] }}</b><br>at {{ dict['submission_time'] }}
                            <a href={{ url_for('delete_answer_comment',comment_id=dict['id'], question_id=question['id']) }}>
                                <img src="/static/images/delete.png" alt="Delete button" style="width: 1%;" title="Delete" onclick="return confirm('Are you sure you want to delete this comment?');"/></a>
                            <br>
