@@ -1,6 +1,7 @@
 import bcrypt
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import db_data_manager
+import util
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "sa37f2$fs(#fskj34"
@@ -35,7 +36,7 @@ def login():
     else:
         email = request.form['email']
         user = db_data_manager.get_hash(email)
-        if db_data_manager.verify_password(request.form['password'], user['hash']):
+        if util.verify_password(request.form['password'], user['hash']):
             session['user'] = {'id': user['id'], 'email': email, 'user_name': user['user_name']}
             flash('You are logged in!')
             return redirect(url_for('index'))
@@ -82,9 +83,9 @@ def list_of_users():
 
 @app.route('/user/<int:user_id>', methods=['GET'])
 def display_selected_user(user_id):
-    if not is_logged_in():
+    if not util.is_logged_in():
         return redirect(url_for('index'))
-    if user_id != get_user_id_from_session():
+    if user_id != util.get_user_id_from_session():
         flash("It's not you!")
         return redirect(url_for('list_of_users'))
     get_user_data = db_data_manager.get_details_of_specific_user(user_id)
@@ -358,19 +359,6 @@ def delete_tag(question_id, tag_id):
     return redirect(url_for('question_display', question_id=question_id))
 
 # --------------------------------------------------------
-
-def is_logged_in():
-    if 'user' in session.keys():
-        return True
-    else:
-        return False
-
-def get_user_id_from_session():
-    if 'user' in session.keys():
-        return session['user']['id']
-    else:
-        raise RuntimeError('Not logged in user')
-
 
 
 if __name__ == "__main__":

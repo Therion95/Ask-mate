@@ -1,4 +1,6 @@
 import csv_connection
+from flask import session
+import bcrypt
 from datetime import datetime
 
 
@@ -8,6 +10,24 @@ def get_next_id(csv_file):
 
 def current_date():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def verify_password(password, hashed):
+    return bcrypt.checkpw(password.encode('utf8'), hashed.encode('utf-8'))
+
+
+def is_logged_in():
+    if 'user' in session.keys():
+        return True
+    else:
+        return False
+
+
+def get_user_id_from_session():
+    if 'user' in session.keys():
+        return session['user']['id']
+    else:
+        raise RuntimeError('Not logged in user')
 
 #
 # def query_builder(query_type, db_table, selector=None, col_to_update=None, update=None, condition=None, order=None,

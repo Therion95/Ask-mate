@@ -496,10 +496,6 @@ def get_hash(cursor, email):
     return cursor.fetchone()
 
 
-def verify_password(password, hashed):
-    return bcrypt.checkpw(password.encode('utf8'), hashed.encode('utf-8'))
-
-
 @db_connection.executor
 def get_tags_names_and_numbers(cursor):
     query = """
