@@ -230,20 +230,6 @@ def get_data_from_table_by_user_id(cursor, db_table, user_id):
     cursor.execute(query)
     return cursor.fetchall()
 
-@db_connection.executor
-def get_logged_user_id(cursor):
-    if request.cookies.get('session'):
-        user_email = session.get('email')
-        query = f"""
-            SELECT id
-            FROM users
-            WHERE email = '{user_email}'
-        """
-        cursor.execute(query)
-        return cursor.fetchone()['id']
-    else:
-        return None
-
 
 # |-----------------------------------------|
 # |ADDING QUESTIONS, ANSWERS, COMMENTS, TAGS|
@@ -255,10 +241,10 @@ def add_question(cursor, requested_data, requested_image, db_table):
     path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_Q)
     if path:
         values = [str(v) for v in [util.current_date(), '0', '0', requested_data['title'], requested_data['message'],
-                                   path, get_logged_user_id()]]
+                                   path, session['user']['id']]]
     else:
         values = [str(v) if v else v for v in [util.current_date(), '0', '0', requested_data['title'],
-                                               requested_data['message'], None, get_logged_user_id()]]
+                                               requested_data['message'], None, session['user']['id']]]
 
     columns = get_listed_column_names(db_table)
     query = f'''
@@ -277,10 +263,10 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
     path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_A)
     if path:
         values = [str(v) for v in
-                  [util.current_date(), 0, question_id, requested_data['message'], path, get_logged_user_id()]]
+                  [util.current_date(), 0, question_id, requested_data['message'], path, session['user']['id']]]
     else:
         values = [str(v) if v else v for v in [util.current_date(), 0, question_id, requested_data['message'], None,
-                                               get_logged_user_id()]]
+                                               session['user']['id']]]
 
     columns = get_listed_column_names(db_table)
     query = f"""
@@ -296,10 +282,10 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
 def add_comment(cursor, requested_data, question_id=None, answer_id=None):
     if answer_id and question_id:
         values = [str(v) if v else v for v in [question_id, answer_id, requested_data['message'], util.current_date(), 0,
-                                               get_logged_user_id()]]
+                                               session['user']['id']]]
     elif question_id and answer_id is None:
         values = [str(v) if v else v for v in [question_id, None, requested_data['message'], util.current_date(), 0,
-                                               get_logged_user_id()]]
+                                               session['user']['id']]]
 
     columns = get_listed_column_names('comment')
     query = f'''

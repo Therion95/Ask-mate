@@ -85,6 +85,7 @@ def display_selected_user(user_id):
     if not is_logged_in():
         return redirect(url_for('index'))
     if user_id != get_user_id_from_session():
+        flash("It's not you!")
         return redirect(url_for('list_of_users'))
     get_user_data = db_data_manager.get_details_of_specific_user(user_id)
     get_headers_from_user_db = get_user_data[0].keys()
