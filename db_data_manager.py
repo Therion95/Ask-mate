@@ -47,6 +47,7 @@ def get_question_data_display(cursor, question_id, db_table):
             for user in get_listed_column('users'):
                 if int(question['user_id']) == int(user['id']):
                     question['user_name'] = user['user_name']
+                    question['email'] = user['email']
 
             answers = [answer for answer in get_listed_column('answer')
                        if int(answer['question_id']) == question_id]
@@ -55,6 +56,7 @@ def get_question_data_display(cursor, question_id, db_table):
                 for user in get_listed_column('users'):
                     if int(answer['user_id']) == int(user['id']):
                         answer['user_name'] = user['user_name']
+                        answer['email'] = user['email']
 
             question_comments, comments_to_answers = None, {}
 
@@ -74,6 +76,7 @@ def get_question_data_display(cursor, question_id, db_table):
                     for user in get_listed_column('users'):
                         if int(comment['user_id']) == int(user['id']):
                             comment['user_name'] = user['user_name']
+                            comment['email'] = user['email']
             if answers:
                 answer_ids = [k['id'] for k in answers]
 
@@ -94,6 +97,7 @@ def get_question_data_display(cursor, question_id, db_table):
                             for user in get_listed_column('users'):
                                 if int(dic['user_id']) == int(user['id']):
                                     dic['user_name'] = user['user_name']
+                                    dic['email'] = user['email']
                     print(comments_to_answers)
 
             return question, headers, answers, question_comments, comments_to_answers
@@ -221,17 +225,14 @@ def get_data_from_table_by_user_id(cursor, db_table, user_id):
 
 @db_connection.executor
 def get_logged_user_id(cursor):
-    if request.cookies.get('session'):
-        user_email = session.get('email')
-        query = f"""
-            SELECT id
-            FROM users
-            WHERE email = '{user_email}'
-        """
-        cursor.execute(query)
-        return cursor.fetchone()['id']
-    else:
-        return None
+    user_email = session.get('email')
+    query = f"""
+        SELECT id
+        FROM users
+        WHERE email = '{user_email}'
+    """
+    cursor.execute(query)
+    return cursor.fetchone()['id']
 
 
 # |-----------------------------------------|
@@ -283,11 +284,11 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
 
 @db_connection.executor
 def add_comment(cursor, requested_data, question_id=None, answer_id=None):
-    if question_id and answer_id is None:
+    if answer_id and question_id:
+        values = [str(v) if v else v for v in [question_id, answer_id, requested_data['message'], util.current_date(),
+                                               0, get_logged_user_id()]]
+    elif question_id and answer_id is None:
         values = [str(v) if v else v for v in [question_id, None, requested_data['message'], util.current_date(), 0,
-                                               get_logged_user_id()]]
-    elif answer_id and question_id:
-        values = [str(v) if v else v for v in [question_id, answer_id, requested_data['message'], util.current_date(), 0,
                                                get_logged_user_id()]]
 
     columns = get_listed_column_names('comment')
