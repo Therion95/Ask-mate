@@ -42,6 +42,7 @@ def login():
             return redirect(url_for('index'))
         else:
             flash('Incorrect data')
+            return redirect(url_for('login'))
 
 
 @app.route('/logout')
@@ -148,8 +149,11 @@ def display_list_questions_by_tag(tag_name):
 @app.route('/add_question', methods=['GET', 'POST'])
 def add_question():
     if request.method == 'GET':
-
-        return render_template('ask.html')
+        if request.cookies.get('session'):
+            return render_template('ask.html')
+        else:
+            flash('Only for logged in users')
+            return redirect(url_for('index'))
 
     elif request.method == 'POST':
         requested_data = dict(request.form)
