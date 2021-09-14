@@ -132,7 +132,7 @@ def display_tag_page():
 def display_list_questions_by_tag(tag_name):
     data = db_data_manager.get_questions_by_tag(tag_name)
     headers = data[0].keys()
-    return render_template('questions_by tag.html', data=data, headers=headers)
+    return render_template('questions_by_tag.html', data=data, headers=headers)
 
 # --------------------------------------------------------
 
