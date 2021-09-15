@@ -100,10 +100,10 @@ def get_question_data_display(cursor, question_id, db_table):
 
 
 @db_connection.executor
-def get_record_to_edit(cursor, given_id):
+def get_record_to_edit(cursor, given_id, table):
     query = f'''
     SELECT *
-    FROM answer
+    FROM {table}
     WHERE id = {given_id}
     '''
 

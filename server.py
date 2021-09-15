@@ -232,7 +232,7 @@ def question_voting_down(question_id):
 @app.route('/answer/<int:answer_id>/vote_up', methods=['GET'])
 def answer_voting_up(answer_id):
     db_data_manager.voting_for_up_down('answer', answer_id, 'up')
-    question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
+    question_id = db_data_manager.get_record_to_edit(answer_id, 'answer')['question_id']
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -240,7 +240,7 @@ def answer_voting_up(answer_id):
 @app.route('/answer/<int:answer_id>/vote_down', methods=['GET'])
 def answer_voting_down(answer_id):
     db_data_manager.voting_for_up_down('answer', answer_id, 'down')
-    question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
+    question_id = db_data_manager.get_record_to_edit(answer_id, 'answer')['question_id']
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -268,7 +268,7 @@ def question_edit(question_id):
 @app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
 def answer_edit(answer_id):
     if request.method == 'GET':
-        answer_to_edit = db_data_manager.get_record_to_edit(answer_id)
+        answer_to_edit = db_data_manager.get_record_to_edit(answer_id, 'answer')
 
         return render_template('answer_edit.html', answer=answer_to_edit)
 
@@ -278,7 +278,7 @@ def answer_edit(answer_id):
         db_data_manager.record_edit('answer', answer_id,
                                     list(edited_answer.keys()), list(edited_answer.values()),
                                     given_file=new_image)
-        question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
+        question_id = db_data_manager.get_record_to_edit(answer_id, 'answer')['question_id']
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -286,7 +286,7 @@ def answer_edit(answer_id):
 @app.route('/comment/<int:comment_id>/edit', methods=['GET', 'POST'])
 def edit_comment(comment_id):
     if request.method == 'GET':
-        comment_to_edit = db_data_manager.get_record_to_edit(comment_id)
+        comment_to_edit = db_data_manager.get_record_to_edit(comment_id, 'comment')
 
         return render_template('comment_edit.html', comment=comment_to_edit)
 
