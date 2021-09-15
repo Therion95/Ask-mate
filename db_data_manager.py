@@ -100,12 +100,12 @@ def get_question_data_display(cursor, question_id, db_table):
 
 
 @db_connection.executor
-def get_record_to_edit(cursor, given_id, table):
+def get_record_to_edit(cursor, given_id, db_table):
     query = f'''
-    SELECT *
-    FROM {table}
-    WHERE id = {given_id}
-    '''
+        SELECT *
+        FROM {db_table}
+        WHERE id = {given_id}
+        '''
 
     cursor.execute(query)
 
@@ -342,19 +342,23 @@ def record_edit(cursor, db_table, given_id, columns, values, given_file=None):
         query = f'''
         UPDATE {db_table} 
         SET ({', '.join(columns)}) = ({', '.join(len(columns) * ['%s'])}) 
-        WHERE {db_table}.id = {given_id}
+        WHERE {db_table}.id = {given_id}   
+        RETURNING {db_table}.question_id     
         '''
 
         cursor.execute(query, values)
+        return cursor.fetchone()
 
     else:
         query = f'''
         UPDATE {db_table} 
         SET {''.join(columns)} = '{''.join(values)}'
         WHERE {db_table}.id = {given_id}
+        RETURNING {db_table}.question_id
         '''
 
         cursor.execute(query)
+        return cursor.fetchone()
 
 
 @db_connection.executor

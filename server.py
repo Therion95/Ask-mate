@@ -292,10 +292,10 @@ def edit_comment(comment_id):
 
     elif request.method == 'POST':
         edited_comment = dict(request.form)
-        question_id = db_data_manager.record_edit('comment', comment_id, list(edited_comment.keys()),
-                                                  list(edited_comment.values()))
+        edited_comment['submission_time'] = util.current_date()
+        question_id = db_data_manager.record_edit('comment', comment_id, list(edited_comment.keys()), list(edited_comment.values()))
 
-        return redirect(url_for('question_display', question_id=question_id))
+        return redirect(url_for('question_display', question_id=question_id['question_id']))
 
 
 @app.route('/question/<int:question_id>/new-tag', methods=['GET', 'POST'])
@@ -330,7 +330,8 @@ def question_delete(question_id):
 
 @app.route('/answer/<int:answer_id>/delete', methods=['GET'])
 def answer_delete(answer_id):
-    question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
+    question_id = db_data_manager.get_record_to_edit(answer_id, 'answer')['question_id']
+    db_data_manager.record_delete('comment', 'answer_id', answer_id)
     db_data_manager.record_delete('answer', 'id', answer_id)
 
     return redirect(url_for('question_display', question_id=question_id))

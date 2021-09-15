@@ -12,6 +12,7 @@
     <form action="{{ url_for('edit_comment', comment_id=comment['id']) }}" method="post">
         <label for="message">Edit a comment's message:</label><br>
         <textarea name="message" id="message" rows="4" cols="60">{{ comment['message'] }}</textarea><br><br>
+         <input value="{{ comment['submission_time'] }}" type="hidden">
         <input type="submit" value="Edit">
     </form>
 
