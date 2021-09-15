@@ -47,7 +47,6 @@ def get_question_data_display(cursor, question_id, db_table):
             for user in get_listed_column('users'):
                 if int(question['user_id']) == int(user['id']):
                     question['user_name'] = user['user_name']
-                    question['email'] = user['email']
 
             answers = [answer for answer in get_listed_column('answer')
                        if int(answer['question_id']) == question_id]
@@ -56,7 +55,6 @@ def get_question_data_display(cursor, question_id, db_table):
                 for user in get_listed_column('users'):
                     if int(answer['user_id']) == int(user['id']):
                         answer['user_name'] = user['user_name']
-                        answer['email'] = user['email']
 
             question_comments, comments_to_answers = None, {}
 
@@ -76,7 +74,6 @@ def get_question_data_display(cursor, question_id, db_table):
                     for user in get_listed_column('users'):
                         if int(comment['user_id']) == int(user['id']):
                             comment['user_name'] = user['user_name']
-                            comment['email'] = user['email']
             if answers:
                 answer_ids = [k['id'] for k in answers]
 
@@ -97,7 +94,6 @@ def get_question_data_display(cursor, question_id, db_table):
                             for user in get_listed_column('users'):
                                 if int(dic['user_id']) == int(user['id']):
                                     dic['user_name'] = user['user_name']
-                                    dic['email'] = user['email']
                     print(comments_to_answers)
 
             return question, headers, answers, question_comments, comments_to_answers
