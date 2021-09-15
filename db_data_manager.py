@@ -62,6 +62,7 @@ def get_question_data_display(cursor, question_id, db_table):
             SELECT *
             FROM comment
             WHERE question_id = {question_id}
+            AND answer_id is NULL
             '''
 
             cursor.execute(query)
@@ -94,7 +95,6 @@ def get_question_data_display(cursor, question_id, db_table):
                             for user in get_listed_column('users'):
                                 if int(dic['user_id']) == int(user['id']):
                                     dic['user_name'] = user['user_name']
-                    print(comments_to_answers)
 
             return question, headers, answers, question_comments, comments_to_answers
 
