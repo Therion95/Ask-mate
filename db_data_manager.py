@@ -269,10 +269,10 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
     path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_A)
     if path:
         values = [str(v) for v in
-                  [util.current_date(), 0, question_id, requested_data['message'], path, session['user']['id']]]
+                  [util.current_date(), 0, question_id, requested_data['message'], path, session['user']['id'], 'no']]
     else:
         values = [str(v) if v else v for v in [util.current_date(), 0, question_id, requested_data['message'], None,
-                                               session['user']['id']]]
+                                               session['user']['id'], 'no']]
 
     columns = get_listed_column_names(db_table)
     query = f"""
@@ -317,6 +317,15 @@ def add_tag(cursor, new_tag):
 # |EDITING QUESTIONS, ANSWERS, COMMENTS|
 # |____________________________________|
 
+@db_connection.executor
+def mark_an_answer(cursor, answer_id, option):
+    query = f"""
+        UPDATE answer
+        SET marked = '{option}'
+        WHERE id = {answer_id}
+    """
+
+    cursor.execute(query)
 
 @db_connection.executor
 def record_edit(cursor, db_table, given_id, columns, values, given_file=None):

@@ -119,15 +119,15 @@ def list_questions():
 # --------------------------------------------------------
 
 
+
 # DISPLAY
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
     question_to_display, headers, answers, comments, comments_a = db_data_manager.get_question_data_display(
         question_id, 'question')
-
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
-                           comments=comments, comments_a=comments_a, tags=tags)
+                               comments=comments, comments_a=comments_a, tags=tags)
 
 
 @app.route('/tags')
@@ -311,6 +311,11 @@ def assign_tag_to_question(question_id):
 
         return redirect(url_for('question_display', question_id=question_id))
 
+
+@app.route('/question/<int:question_id>/<int:answer_id>/<option>', methods=['GET'])
+def mark_an_answer(question_id, answer_id, option):
+    db_data_manager.mark_an_answer(answer_id, option)
+    return redirect(url_for("question_display", question_id=question_id))
 
 # --------------------------------------------------------
 

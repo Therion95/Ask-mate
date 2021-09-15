@@ -78,7 +78,20 @@
     {% if answers %}
         <p><h3><i>Answers to question {{ question['id'] }}:</i></h3>
         {% for answer in answers %}
-            <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['user_name'] }}:&nbsp;&nbsp;{{ answer['message'] }}
+            <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['user_name'] }}:&nbsp;&nbsp;{{ answer['message'] }}<br>
+            <br>
+            {% if session %}
+                {% if answer['marked'] == 'no' %}
+                    <form action="{{ url_for("mark_an_answer", question_id=question['id'], answer_id=answer['id'], option='yes') }}" method="get">
+                    <button type="submit" value="submit">Accept this answer as most value</button></form>
+                {% elif session['user']['id'] != question['user_id'] and answer['marked'] == 'yes' %}
+                    <h3><b>*** Answer marked as value ***</b></h3>
+                {% elif session['user']['id'] == question['user_id'] and answer['marked'] == 'yes' %}
+                    <h3><b>*** Answer marked as value ***</b></h3><br><br>
+                    <form action="{{ url_for("mark_an_answer", question_id=question['id'], answer_id=answer['id'], option='no') }}" method="get">
+                    <button type="submit" value="Submit">This answer is not value</button></form>
+                {% endif %}
+            {% endif %}
             <br>
             {% if answer['image'] != None %}
                 <img src="/{{ answer['image'] }}" alt="Picture" style="width: 30%;" /><br><br>
