@@ -293,6 +293,7 @@ def edit_comment(comment_id):
     elif request.method == 'POST':
         edited_comment = dict(request.form)
         edited_comment['submission_time'] = util.current_date()
+        db_data_manager.get_the_number_of_edits(comment_id)
         question_id = db_data_manager.record_edit('comment', comment_id, list(edited_comment.keys()), list(edited_comment.values()))
 
         return redirect(url_for('question_display', question_id=question_id['question_id']))

@@ -63,7 +63,7 @@
     <br>
     <h3><i>Comments to question {{ question['id'] }}:</i></h3>
     {% for comment in comments %}
-            <b>{{ comment['user_name'] }}:&nbsp;&nbsp;{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
+        <b>{{ comment['user_name'] }}:&nbsp;&nbsp;{{ comment['message'] }}</b><br>at {{ comment['submission_time'] }}
             {% if session['user'] %}
                 {% if session['user']['id'] == comment['user_id'] %}
                     <a href={{ url_for('delete_question_comment', question_id=question['id'], comment_id=comment['id']) }}>
@@ -71,8 +71,11 @@
                     <a href={{ url_for('edit_comment', comment_id=comment['id']) }}>
                     <img src="/static/images/edit_comment.png" alt="Edit button" style="width: 1%;" title="Edit"/></a>
                 {% endif %}
-            {% endif %}
-        <br><br>
+            {% endif %}<br>
+        {% if comment['edited_count'] > 0 %}
+            (edited {{ comment['edited_count'] }} times)<br>
+        {% endif %}
+        <br>
     {% endfor %}
     {% endif %}
     <br>
@@ -85,7 +88,7 @@
             {% if session %}
                 {% if answer['marked'] == 'no' %}
                     <form action="{{ url_for("mark_an_answer", question_id=question['id'], answer_id=answer['id'], option='yes') }}" method="get">
-                    <button type="submit" value="submit">Accept this answer as most value</button></form>
+                    <button type="submit" value="submit">Accept this answer as value</button></form>
                 {% elif session['user']['id'] != question['user_id'] and answer['marked'] == 'yes' %}
                     <h3><b>*** Answer marked as value ***</b></h3>
                 {% elif session['user']['id'] == question['user_id'] and answer['marked'] == 'yes' %}
@@ -113,6 +116,10 @@
                                         <img src="/static/images/edit_comment.png" alt="Edit button" style="width: 1%;" title="Edit"/>
                                     </a>
                                {% endif %}
+                                <br>
+                            {% endif %}
+                            {% if dict['edited_count'] > 0 %}
+                            (edited {{ dict['edited_count'] }} times)<br>
                             {% endif %}
                            <br>
                         {% endif %}

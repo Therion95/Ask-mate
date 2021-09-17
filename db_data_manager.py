@@ -328,6 +328,16 @@ def mark_an_answer(cursor, answer_id, option):
     cursor.execute(query)
 
 @db_connection.executor
+def get_the_number_of_edits(cursor, comment_id):
+    query = f"""
+        UPDATE comment
+        SET edited_count = edited_count + 1
+        WHERE id = {comment_id}
+    """
+
+    cursor.execute(query)
+
+@db_connection.executor
 def record_edit(cursor, db_table, given_id, columns, values, given_file=None):
     if given_file:
         if db_table == 'question':
@@ -368,6 +378,18 @@ def voting_for_up_down(cursor, db_table, given_id, up_or_down):
     query = f'''
     UPDATE {db_table}
     SET vote_number = vote_number {values[up_or_down]}
+    WHERE id = {given_id}
+    '''
+
+    cursor.execute(query)
+
+@db_connection.executor
+def modify_reputation(cursor, given_id, voting):
+    values = {'question_up': "+ 5", 'answer_up': "+ 10", 'accepted_answer': "+ 15", 'thumb_down': "- 2"}
+
+    query = f'''
+    UPDATE users
+    SET reputation = reputation {values[voting]}
     WHERE id = {given_id}
     '''
 
