@@ -327,7 +327,7 @@ def mark_an_answer(question_id, answer_id, option, user_id):
 # DELETE SOMETHING pages
 @app.route('/question/<int:question_id>/delete', methods=['GET'])
 def question_delete(question_id):
-    # TODO IF I HAVE 3 DIFFERENT comment ids to answer, how to put them into "record delete" function?
+    db_data_manager.record_delete('question_tag', 'question_id', question_id)
     db_data_manager.record_delete('comment', 'question_id', question_id)
     db_data_manager.record_delete('answer', 'question_id', question_id)
     db_data_manager.record_delete('question', 'id', question_id)
