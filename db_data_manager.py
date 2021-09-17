@@ -417,8 +417,8 @@ def insert_values_into_voting(cursor, user_id, data1, data2, data3, data4):
     cursor.execute(query)
 
 
-def voting_system(db_table, table_id, up_down):
-    user_id = session['user']['id']
+def voting_system(db_table, table_id, up_down, user_id):
+    logged_user_id = session['user']['id']
     if db_table == 'question':
         db_column_up = 'question_up'
         db_column_down = 'question_down'
@@ -427,33 +427,41 @@ def voting_system(db_table, table_id, up_down):
         db_column_down = 'answer_down'
 
     if up_down == 'up':
-        if check_if_was_voted_up(user_id, table_id, db_column_up, db_column_down):
+        if check_if_was_voted_up(logged_user_id, table_id, db_column_up, db_column_down):
             flash("You have already voted up for this content!")
-        elif check_if_was_voted_down(user_id, table_id, db_column_up, db_column_down):
-            vote_id = check_if_was_voted_down(user_id, table_id, db_column_up, db_column_down)['id']
+        elif check_if_was_voted_down(logged_user_id, table_id, db_column_up, db_column_down):
+            vote_id = check_if_was_voted_down(logged_user_id, table_id, db_column_up, db_column_down)['id']
             update_voting_values(vote_id, db_column_up, db_column_down, table_id, 'NULL')
             vote_number_update(db_table, table_id, '+2')
+            if db_table == 'question':
+                modify_reputation(user_id, 'question_up')
+            else:
+                modify_reputation(user_id, 'answer_up')
             flash("You changed your vote to up!")
         else:
             if db_table == 'question':
-                insert_values_into_voting(user_id, table_id, 'NULL', 'NULL', 'NULL')
+                insert_values_into_voting(logged_user_id, table_id, 'NULL', 'NULL', 'NULL')
+                modify_reputation(user_id, 'question_up')
             else:
-                insert_values_into_voting(user_id, 'NULL', 'NULL', table_id, 'NULL')
+                insert_values_into_voting(logged_user_id, 'NULL', 'NULL', table_id, 'NULL')
+                modify_reputation(user_id, 'answer_up')
             vote_number_update(db_table, table_id, '+1')
             flash("You voted up.")
     elif up_down == 'down':
-        if check_if_was_voted_up(user_id, table_id, db_column_up, db_column_down):
-            vote_id = check_if_was_voted_up(user_id, table_id, db_column_up, db_column_down)['id']
+        if check_if_was_voted_up(logged_user_id, table_id, db_column_up, db_column_down):
+            vote_id = check_if_was_voted_up(logged_user_id, table_id, db_column_up, db_column_down)['id']
             update_voting_values(vote_id, db_column_up, db_column_down, 'NULL', table_id)
             vote_number_update(db_table, table_id, '-2')
+            modify_reputation(user_id, 'thumb_down')
             flash("You changed your vote to down!")
-        elif check_if_was_voted_down(user_id, table_id, db_column_up, db_column_down):
+        elif check_if_was_voted_down(logged_user_id, table_id, db_column_up, db_column_down):
             flash("You have already voted down for this content!")
         else:
             if db_table == 'question':
-                insert_values_into_voting(user_id, 'NULL', table_id, 'NULL', 'NULL')
+                insert_values_into_voting(logged_user_id, 'NULL', table_id, 'NULL', 'NULL')
             else:
-                insert_values_into_voting(user_id, 'NULL', 'NULL', 'NULL', table_id)
+                insert_values_into_voting(logged_user_id, 'NULL', 'NULL', 'NULL', table_id)
+            modify_reputation(user_id, 'thumb_down')
             vote_number_update(db_table, table_id, '-1')
             flash("You voted down.")
 
@@ -479,7 +487,7 @@ def view_number_update(cursor, given_id):
 
 @db_connection.executor
 def modify_reputation(cursor, given_id, voting):
-    values = {'question_up': "+ 5", 'answer_up': "+ 10", 'accepted_answer': "+ 15", 'thumb_down': "- 2"}
+    values = {'question_up': "+ 5", 'answer_up': "+ 10", 'accepted_answer': "+ 15", 'denied_answer': "- 15", 'thumb_down': "- 2"}
 
     query = f'''
     UPDATE users

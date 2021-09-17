@@ -216,30 +216,30 @@ def define_new_tag(question_id):
 
 
 # VOTING ON QUESTIONS & ANSWERS endpoints
-@app.route('/question/<int:question_id>/vote_up', methods=['GET'])
-def question_voting_up(question_id):
-    db_data_manager.voting_system('question', question_id, 'up')
+@app.route('/question/<int:question_id>/<int:user_id>/vote_up', methods=['GET'])
+def question_voting_up(question_id, user_id):
+    db_data_manager.voting_system('question', question_id, 'up', user_id)
 
     return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/question/<int:question_id>/vote_down', methods=['GET'])
-def question_voting_down(question_id):
-    db_data_manager.voting_system('question', question_id, 'down')
+@app.route('/question/<int:question_id>/<int:user_id>/vote_down', methods=['GET'])
+def question_voting_down(question_id, user_id):
+    db_data_manager.voting_system('question', question_id, 'down', user_id)
 
     return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/answer/<int:question_id>/<int:answer_id>/vote_up', methods=['GET'])
-def answer_voting_up(answer_id, question_id):
-    db_data_manager.voting_system('answer', answer_id, 'up')
+@app.route('/answer/<int:question_id>/<int:answer_id>/<int:user_id>/vote_up', methods=['GET'])
+def answer_voting_up(answer_id, question_id, user_id):
+    db_data_manager.voting_system('answer', answer_id, 'up', user_id)
 
     return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/answer/<int:question_id>/<int:answer_id>/vote_down', methods=['GET'])
-def answer_voting_down(answer_id, question_id):
-    db_data_manager.voting_system('answer', answer_id, 'down')
+@app.route('/answer/<int:question_id>/<int:answer_id>/<int:user_id>/vote_down', methods=['GET'])
+def answer_voting_down(answer_id, question_id, user_id):
+    db_data_manager.voting_system('answer', answer_id, 'down', user_id)
 
     return redirect(url_for('question_display', question_id=question_id))
 
@@ -312,9 +312,13 @@ def assign_tag_to_question(question_id):
         return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/question/<int:question_id>/<int:answer_id>/<option>', methods=['GET'])
-def mark_an_answer(question_id, answer_id, option):
+@app.route('/question/<int:question_id>/<int:answer_id>/<int:user_id>/<option>', methods=['GET'])
+def mark_an_answer(question_id, answer_id, option, user_id):
     db_data_manager.mark_an_answer(answer_id, option)
+    if option == 'yes':
+        db_data_manager.modify_reputation(user_id, 'accepted_answer')
+    else:
+        db_data_manager.modify_reputation(user_id, 'denied_answer')
     return redirect(url_for("question_display", question_id=question_id))
 
 # --------------------------------------------------------
@@ -323,6 +327,9 @@ def mark_an_answer(question_id, answer_id, option):
 # DELETE SOMETHING pages
 @app.route('/question/<int:question_id>/delete', methods=['GET'])
 def question_delete(question_id):
+    # TODO IF I HAVE 3 DIFFERENT comment ids to answer, how to put them into "record delete" function?
+    db_data_manager.record_delete('comment', 'question_id', question_id)
+    db_data_manager.record_delete('answer', 'question_id', question_id)
     db_data_manager.record_delete('question', 'id', question_id)
 
     return redirect(url_for('list_questions'))

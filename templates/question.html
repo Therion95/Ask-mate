@@ -46,8 +46,8 @@
             <tr><th class="question">{{ headers[2] }}: {{ question[headers[2]] }}</th></tr>
             <tr class="question">
                 {% if session['user']['id'] != question['user_id'] %}
-                    <td class="question"><a href={{ url_for('question_voting_up', question_id=question['id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" title="Vote up"/></a></td>
-                    <td class="question"><a href={{ url_for('question_voting_down', question_id=question['id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" title="Vote down"/></a></td>
+                    <td class="question"><a href={{ url_for('question_voting_up', question_id=question['id'], user_id=question['user_id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" title="Vote up"/></a></td>
+                    <td class="question"><a href={{ url_for('question_voting_down', question_id=question['id'], user_id=question['user_id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" title="Vote down"/></a></td>
                     <td class="question"><a href={{ url_for("add_answer_question", question_id=question["id"]) }}><img src="/static/images/answer.png" alt="Answer the question" style="width: 10%" title="Answer the question"></a></td>
                 {% elif session['user']['id'] == question['user_id'] %}
                     <td class="question"><a href={{ url_for('question_edit', question_id=question['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" title="Edit"/></a></td>
@@ -86,14 +86,14 @@
             <div style="border: 3px dashed #606060; margin: 10px; width: 75%"><p>{{ answer['user_name'] }}:&nbsp;&nbsp;{{ answer['message'] }}<br>
             <br>
             {% if session %}
-                {% if answer['marked'] == 'no' %}
-                    <form action="{{ url_for("mark_an_answer", question_id=question['id'], answer_id=answer['id'], option='yes') }}" method="get">
+                {% if answer['marked'] == 'no' and session['user']['id'] != answer['user_id'] %}
+                    <form action="{{ url_for("mark_an_answer", question_id=question['id'], answer_id=answer['id'], option='yes', user_id=answer['user_id']) }}" method="get">
                     <button type="submit" value="submit">Accept this answer as value</button></form>
                 {% elif session['user']['id'] != question['user_id'] and answer['marked'] == 'yes' %}
                     <h3><b>*** Answer marked as value ***</b></h3>
                 {% elif session['user']['id'] == question['user_id'] and answer['marked'] == 'yes' %}
                     <h3><b>*** Answer marked as value ***</b></h3><br><br>
-                    <form action="{{ url_for("mark_an_answer", question_id=question['id'], answer_id=answer['id'], option='no') }}" method="get">
+                    <form action="{{ url_for("mark_an_answer", question_id=question['id'], answer_id=answer['id'], option='no', user_id=answer['user_id']) }}" method="get">
                     <button type="submit" value="Submit">This answer is not value</button></form>
                 {% endif %}
             {% endif %}
@@ -134,8 +134,8 @@
                     <tr><th class="answer">{{ headers[2] }}: {{ answer[headers[2]] }}</th></tr>
                     <tr class="answer">
                         {% if session['user']['id'] != answer['user_id'] %}
-                            <td class="answer"><a href={{ url_for('answer_voting_up', answer_id=answer['id'], question_id=answer['question_id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" title="Vote up"/></a></td>
-                            <td class="answer"><a href={{ url_for('answer_voting_down', answer_id=answer['id'], question_id=answer['question_id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" title="Vote down"/></a></td>
+                            <td class="answer"><a href={{ url_for('answer_voting_up', answer_id=answer['id'], question_id=answer['question_id'], user_id=answer['user_id']) }}><img src="/static/images/thumb_up.ico" alt="Thumb up button" style="width: 10%;" title="Vote up"/></a></td>
+                            <td class="answer"><a href={{ url_for('answer_voting_down', answer_id=answer['id'], question_id=answer['question_id'], user_id=answer['user_id']) }}><img src="/static/images/thumb_down.png" alt="Thumb down button" style="width: 10%;" title="Vote down"/></a></td>
                         {% elif session['user']['id'] == answer['user_id'] %}
                             <td class="answer"><a href={{ url_for('answer_edit', answer_id=answer['id']) }}><img src="/static/images/edit.png" alt="Edit button" style="width: 10%;" title="Edit"/></a></td>
                             <td class="answer"><a href={{ url_for('answer_delete', answer_id=answer['id']) }}><img src="/static/images/delete.png" alt="Delete button" style="width: 10%;" title="Delete"/></a></td>
