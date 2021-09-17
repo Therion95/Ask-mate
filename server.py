@@ -122,6 +122,7 @@ def list_questions():
 # DISPLAY
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
+    db_data_manager.view_number_update(question_id)
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
     question_to_display, headers, answers, comments, comments_a = db_data_manager.get_question_data_display(
         question_id, 'question')
@@ -217,30 +218,28 @@ def define_new_tag(question_id):
 # VOTING ON QUESTIONS & ANSWERS endpoints
 @app.route('/question/<int:question_id>/vote_up', methods=['GET'])
 def question_voting_up(question_id):
-    db_data_manager.voting_for_up_down('question', question_id, 'up')
+    db_data_manager.voting_system('question', question_id, 'up')
 
     return redirect(url_for('question_display', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/vote_down', methods=['GET'])
 def question_voting_down(question_id):
-    db_data_manager.voting_for_up_down('question', question_id, 'down')
+    db_data_manager.voting_system('question', question_id, 'down')
 
     return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/answer/<int:answer_id>/vote_up', methods=['GET'])
-def answer_voting_up(answer_id):
-    db_data_manager.voting_for_up_down('answer', answer_id, 'up')
-    question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
+@app.route('/answer/<int:question_id>/<int:answer_id>/vote_up', methods=['GET'])
+def answer_voting_up(answer_id, question_id):
+    db_data_manager.voting_system('answer', answer_id, 'up')
 
     return redirect(url_for('question_display', question_id=question_id))
 
 
-@app.route('/answer/<int:answer_id>/vote_down', methods=['GET'])
-def answer_voting_down(answer_id):
-    db_data_manager.voting_for_up_down('answer', answer_id, 'down')
-    question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
+@app.route('/answer/<int:question_id>/<int:answer_id>/vote_down', methods=['GET'])
+def answer_voting_down(answer_id, question_id):
+    db_data_manager.voting_system('answer', answer_id, 'down')
 
     return redirect(url_for('question_display', question_id=question_id))
 

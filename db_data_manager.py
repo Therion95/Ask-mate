@@ -349,15 +349,109 @@ def record_edit(cursor, db_table, given_id, columns, values, given_file=None):
 
 
 @db_connection.executor
-def voting_for_up_down(cursor, db_table, given_id, up_or_down):
-    values = {'up': "+ 1", 'down': "- 1"}
+def check_if_was_voted_up(cursor, user_id, table_id, db_column_up, db_column_down):
+    query = f"""
+        SELECT id
+        FROM voting
+        WHERE user_id = {user_id}
+        AND {db_column_up} = {table_id}
+        AND {db_column_down} is NULL 
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
 
+
+@db_connection.executor
+def check_if_was_voted_down(cursor, user_id, table_id, db_column_up, db_column_down):
+    query = f"""
+        SELECT id
+        FROM voting
+        WHERE user_id = {user_id}
+        AND {db_column_up} is NULL
+        AND {db_column_down} = {table_id} 
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+
+@db_connection.executor
+def update_voting_values(cursor, vote_id, db_column_one, db_column_two, data1, data2):
+    query = f"""
+        UPDATE voting
+        SET ({db_column_one}, {db_column_two}) = ({data1}, {data2}) 
+        WHERE id = {vote_id}
+    """
+    cursor.execute(query)
+
+
+@db_connection.executor
+def insert_values_into_voting(cursor, user_id, data1, data2, data3, data4):
+    query = f"""
+        INSERT INTO voting (user_id, question_up, question_down, answer_up, answer_down)
+        VALUES ({user_id}, {data1}, {data2}, {data3}, {data4})
+
+    """
+    cursor.execute(query)
+
+
+def voting_system(db_table, table_id, up_down):
+    user_id = session['user']['id']
+    if db_table == 'question':
+        db_column_up = 'question_up'
+        db_column_down = 'question_down'
+    else:
+        db_column_up = 'answer_up'
+        db_column_down = 'answer_down'
+
+    if up_down == 'up':
+        if check_if_was_voted_up(user_id, table_id, db_column_up, db_column_down):
+            flash("You have already voted up for this content!")
+        elif check_if_was_voted_down(user_id, table_id, db_column_up, db_column_down):
+            vote_id = check_if_was_voted_down(user_id, table_id, db_column_up, db_column_down)['id']
+            update_voting_values(vote_id, db_column_up, db_column_down, table_id, 'NULL')
+            vote_number_update(db_table, table_id, '+2')
+            flash("You changed your vote to up!")
+        else:
+            if db_table == 'question':
+                insert_values_into_voting(user_id, table_id, 'NULL', 'NULL', 'NULL')
+            else:
+                insert_values_into_voting(user_id, 'NULL', 'NULL', table_id, 'NULL')
+            vote_number_update(db_table, table_id, '+1')
+            flash("You voted up.")
+    elif up_down == 'down':
+        if check_if_was_voted_up(user_id, table_id, db_column_up, db_column_down):
+            vote_id = check_if_was_voted_up(user_id, table_id, db_column_up, db_column_down)['id']
+            update_voting_values(vote_id, db_column_up, db_column_down, 'NULL', table_id)
+            vote_number_update(db_table, table_id, '-2')
+            flash("You changed your vote to down!")
+        elif check_if_was_voted_down(user_id, table_id, db_column_up, db_column_down):
+            flash("You have already voted down for this content!")
+        else:
+            if db_table == 'question':
+                insert_values_into_voting(user_id, 'NULL', table_id, 'NULL', 'NULL')
+            else:
+                insert_values_into_voting(user_id, 'NULL', 'NULL', 'NULL', table_id)
+            vote_number_update(db_table, table_id, '-1')
+            flash("You voted down.")
+
+
+@db_connection.executor
+def vote_number_update(cursor, db_table, given_id, value):
     query = f'''
     UPDATE {db_table}
-    SET vote_number = vote_number {values[up_or_down]}
+    SET vote_number = vote_number {value}
     WHERE id = {given_id}
     '''
+    cursor.execute(query)
 
+
+@db_connection.executor
+def view_number_update(cursor, given_id):
+    query = f'''
+    UPDATE question
+    SET view_number = view_number + 1
+    WHERE id = {given_id}
+    '''
     cursor.execute(query)
 
 
