@@ -47,7 +47,11 @@
     <thead>
           <tr>
               {% for header in headers %}
-              <th>{{ header }}</th>
+                  {% if header == 'user_id' %}
+                      <input value="{{ header }}" type="hidden">
+                  {% else %}
+                      <th>{{ header }}</th>
+                  {% endif %}
               {% endfor %}
           </tr>
     </thead>
@@ -56,13 +60,15 @@
         {% for question in questions  %}
             {% for key, value in question.items() %}
                 {% if key == 'id' %}
-                <td><a href={{ url_for('question_display', question_id=value) }}>{{ value }}</a></td>
+                    <td><a href={{ url_for('question_display', question_id=value) }}>{{ value }}</a></td>
                 {% elif key == 'image' %}
                     {% if question[key] != None %}
                         <td><img src="{{ question[key] }}" alt="Picture" style="width: 30%;" /></td>
                     {% elif question[key] == None %}
                         <td>no image</td>
                     {% endif %}
+                {% elif key == 'user_id' %}
+                    <input value="{{ value }}" type="hidden">
                 {% else %}
                     <td>{{ value }}</td>
                 {% endif %}

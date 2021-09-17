@@ -27,7 +27,11 @@
   <thead>
     <tr>
       {% for header in headers %}
-      <th>{{ header }}</th>
+          {% if header == 'user_id' %}
+            <input value="{{ header }}" type="hidden">
+          {% else %}
+            <th>{{ header }}</th>
+          {% endif %}
       {% endfor %}
     </tr>
   </thead>
@@ -49,6 +53,8 @@
                 {% else %}
                     <td>{{ value }}</td>
                 {% endif %}
+            {% elif key == 'user_id' %}
+                 <input value="{{ value }}" type="hidden">
             {% else %}
                 <td>{{ value }}</td>
             {% endif %}

@@ -100,12 +100,12 @@ def get_question_data_display(cursor, question_id, db_table):
 
 
 @db_connection.executor
-def get_record_to_edit(cursor, given_id):
+def get_record_to_edit(cursor, given_id, db_table):
     query = f'''
-    SELECT *
-    FROM answer
-    WHERE id = {given_id}
-    '''
+        SELECT *
+        FROM {db_table}
+        WHERE id = {given_id}
+        '''
 
     cursor.execute(query)
 
@@ -269,10 +269,10 @@ def answer_question(cursor, requested_data, requested_image, db_table, question_
     path = files_connection.upload_file(requested_image, UPLOAD_FOLDER_A)
     if path:
         values = [str(v) for v in
-                  [util.current_date(), 0, question_id, requested_data['message'], path, session['user']['id']]]
+                  [util.current_date(), 0, question_id, requested_data['message'], path, session['user']['id'], 'no']]
     else:
         values = [str(v) if v else v for v in [util.current_date(), 0, question_id, requested_data['message'], None,
-                                               session['user']['id']]]
+                                               session['user']['id'], 'no']]
 
     columns = get_listed_column_names(db_table)
     query = f"""
@@ -317,6 +317,25 @@ def add_tag(cursor, new_tag):
 # |EDITING QUESTIONS, ANSWERS, COMMENTS|
 # |____________________________________|
 
+@db_connection.executor
+def mark_an_answer(cursor, answer_id, option):
+    query = f"""
+        UPDATE answer
+        SET marked = '{option}'
+        WHERE id = {answer_id}
+    """
+
+    cursor.execute(query)
+
+@db_connection.executor
+def get_the_number_of_edits(cursor, comment_id):
+    query = f"""
+        UPDATE comment
+        SET edited_count = edited_count + 1
+        WHERE id = {comment_id}
+    """
+
+    cursor.execute(query)
 
 @db_connection.executor
 def record_edit(cursor, db_table, given_id, columns, values, given_file=None):
@@ -333,19 +352,23 @@ def record_edit(cursor, db_table, given_id, columns, values, given_file=None):
         query = f'''
         UPDATE {db_table} 
         SET ({', '.join(columns)}) = ({', '.join(len(columns) * ['%s'])}) 
-        WHERE {db_table}.id = {given_id}
+        WHERE {db_table}.id = {given_id}   
+        RETURNING {db_table}.question_id     
         '''
 
         cursor.execute(query, values)
+        return cursor.fetchone()
 
     else:
         query = f'''
         UPDATE {db_table} 
         SET {''.join(columns)} = '{''.join(values)}'
         WHERE {db_table}.id = {given_id}
+        RETURNING {db_table}.question_id
         '''
 
         cursor.execute(query)
+        return cursor.fetchone()
 
 
 @db_connection.executor
@@ -452,6 +475,18 @@ def view_number_update(cursor, given_id):
     SET view_number = view_number + 1
     WHERE id = {given_id}
     '''
+    cursor.execute(query)
+
+@db_connection.executor
+def modify_reputation(cursor, given_id, voting):
+    values = {'question_up': "+ 5", 'answer_up': "+ 10", 'accepted_answer': "+ 15", 'thumb_down': "- 2"}
+
+    query = f'''
+    UPDATE users
+    SET reputation = reputation {values[voting]}
+    WHERE id = {given_id}
+    '''
+
     cursor.execute(query)
 
 

@@ -119,6 +119,7 @@ def list_questions():
 # --------------------------------------------------------
 
 
+
 # DISPLAY
 @app.route('/question/<int:question_id>', methods=['GET'])
 def question_display(question_id):
@@ -126,9 +127,8 @@ def question_display(question_id):
     tags = db_data_manager.get_tag_names_by_question_id(question_id)
     question_to_display, headers, answers, comments, comments_a = db_data_manager.get_question_data_display(
         question_id, 'question')
-
     return render_template('question.html', question=question_to_display, headers=headers, answers=answers,
-                           comments=comments, comments_a=comments_a, tags=tags)
+                            comments=comments, comments_a=comments_a, tags=tags)
 
 
 @app.route('/tags')
@@ -267,7 +267,7 @@ def question_edit(question_id):
 @app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
 def answer_edit(answer_id):
     if request.method == 'GET':
-        answer_to_edit = db_data_manager.get_record_to_edit(answer_id)
+        answer_to_edit = db_data_manager.get_record_to_edit(answer_id, 'answer')
 
         return render_template('answer_edit.html', answer=answer_to_edit)
 
@@ -277,7 +277,7 @@ def answer_edit(answer_id):
         db_data_manager.record_edit('answer', answer_id,
                                     list(edited_answer.keys()), list(edited_answer.values()),
                                     given_file=new_image)
-        question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
+        question_id = db_data_manager.get_record_to_edit(answer_id, 'answer')['question_id']
 
         return redirect(url_for('question_display', question_id=question_id))
 
@@ -285,16 +285,17 @@ def answer_edit(answer_id):
 @app.route('/comment/<int:comment_id>/edit', methods=['GET', 'POST'])
 def edit_comment(comment_id):
     if request.method == 'GET':
-        comment_to_edit = db_data_manager.get_record_to_edit(comment_id)
+        comment_to_edit = db_data_manager.get_record_to_edit(comment_id, 'comment')
 
         return render_template('comment_edit.html', comment=comment_to_edit)
 
     elif request.method == 'POST':
         edited_comment = dict(request.form)
-        question_id = db_data_manager.record_edit('comment', comment_id, list(edited_comment.keys()),
-                                                  list(edited_comment.values()))
+        edited_comment['submission_time'] = util.current_date()
+        db_data_manager.get_the_number_of_edits(comment_id)
+        question_id = db_data_manager.record_edit('comment', comment_id, list(edited_comment.keys()), list(edited_comment.values()))
 
-        return redirect(url_for('question_display', question_id=question_id))
+        return redirect(url_for('question_display', question_id=question_id['question_id']))
 
 
 @app.route('/question/<int:question_id>/new-tag', methods=['GET', 'POST'])
@@ -311,6 +312,11 @@ def assign_tag_to_question(question_id):
         return redirect(url_for('question_display', question_id=question_id))
 
 
+@app.route('/question/<int:question_id>/<int:answer_id>/<option>', methods=['GET'])
+def mark_an_answer(question_id, answer_id, option):
+    db_data_manager.mark_an_answer(answer_id, option)
+    return redirect(url_for("question_display", question_id=question_id))
+
 # --------------------------------------------------------
 
 
@@ -324,7 +330,8 @@ def question_delete(question_id):
 
 @app.route('/answer/<int:answer_id>/delete', methods=['GET'])
 def answer_delete(answer_id):
-    question_id = db_data_manager.get_record_to_edit(answer_id)['question_id']
+    question_id = db_data_manager.get_record_to_edit(answer_id, 'answer')['question_id']
+    db_data_manager.record_delete('comment', 'answer_id', answer_id)
     db_data_manager.record_delete('answer', 'id', answer_id)
 
     return redirect(url_for('question_display', question_id=question_id))
